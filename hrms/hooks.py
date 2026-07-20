@@ -29,6 +29,19 @@ app_include_js = [
 ]
 app_include_css = "hrms.bundle.css"
 
+fixtures = [
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["dt", "=", "Delivery Trip"]
+        ]
+    },
+    {
+        "dt": "Property Setter",
+        "filters": [["doc_type", "=", "Delivery Trip"]]
+    }
+]
+
 # website
 
 # include js, css files in header of web template

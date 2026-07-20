@@ -14,7 +14,7 @@
 							>
 								<FeatherIcon name="chevron-left" class="h-5 w-5" />
 							</Button>
-							<h2 class="text-xl font-semibold text-gray-900">{{ __("Profile") }}</h2>
+							<h2 class="text-xl font-semibold text-[var(--color-primary)]">{{ __("Profile") }}</h2>
 						</div>
 					</header>
 
@@ -28,13 +28,13 @@
 						/>
 						<div
 							v-else
-							class="flex items-center justify-center bg-gray-200 uppercase text-gray-600 h-24 w-24 rounded-full object-cover"
+							class="flex items-center justify-center bg-[var(--color-card-selected-bg)] uppercase text-[var(--color-primary)] h-24 w-24 rounded-full object-cover"
 						>
 							{{ user.data.first_name[0] }}
 						</div>
 
 						<div class="flex flex-col gap-1.5 items-center mt-2 mb-5">
-							<span v-if="employee" class="text-lg font-bold text-gray-900">{{
+							<span v-if="employee" class="text-lg font-bold text-[var(--color-primary)]">{{
 								employee?.data?.employee_name
 							}}</span>
 							<span v-if="employee" class="font-normal text-sm text-gray-500">{{

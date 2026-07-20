@@ -1,0 +1,60 @@
+[
+  {
+    "doctype": "Custom Field",
+    "name": "Delivery Trip-lh_trip_tracking_section",
+    "dt": "Delivery Trip",
+    "fieldname": "lh_trip_tracking_section",
+    "fieldtype": "Section Break",
+    "insert_after": "lh_geo_section",
+    "label": "Trip Tracking"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Delivery Trip-departure_location_latitude",
+    "dt": "Delivery Trip",
+    "fieldname": "departure_location_latitude",
+    "fieldtype": "Float",
+    "insert_after": "lh_trip_tracking_section",
+    "label": "Departure Location Latitude",
+    "precision": "6"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Delivery Trip-departure_location_longitude",
+    "dt": "Delivery Trip",
+    "fieldname": "departure_location_longitude",
+    "fieldtype": "Float",
+    "insert_after": "departure_location_latitude",
+    "label": "Departure Location Longitude",
+    "precision": "6"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Delivery Trip-arrival_location_latitude",
+    "dt": "Delivery Trip",
+    "fieldname": "arrival_location_latitude",
+    "fieldtype": "Float",
+    "insert_after": "departure_location_longitude",
+    "label": "Arrival Location Latitude",
+    "precision": "6"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Delivery Trip-arrival_location_longitude",
+    "dt": "Delivery Trip",
+    "fieldname": "arrival_location_longitude",
+    "fieldtype": "Float",
+    "insert_after": "arrival_location_latitude",
+    "label": "Arrival Location Longitude",
+    "precision": "6"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Delivery Trip-stop_reason",
+    "dt": "Delivery Trip",
+    "fieldname": "stop_reason",
+    "fieldtype": "Small Text",
+    "insert_after": "arrival_location_longitude",
+    "label": "Stop Reason"
+  }
+]

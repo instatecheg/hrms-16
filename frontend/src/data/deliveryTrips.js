@@ -2,11 +2,18 @@ import { reactive } from "vue"
 import { call } from "frappe-ui"
 
 const STATUS_GROUPS = {
-	active: ["Scheduled", "In Transit"],
+	active: ["Scheduled", "In Transit", "Delivered", "Stopped"],
 	history: ["Completed", "Cancelled"],
 }
 
-const ALL_STATUSES = ["Scheduled", "In Transit", "Completed", "Cancelled"]
+const ALL_STATUSES = [
+	"Scheduled",
+	"In Transit",
+	"Delivered",
+	"Stopped",
+	"Completed",
+	"Cancelled",
+]
 
 // cache the resolved Driver record for the logged-in user for this session
 let driverPromise = null
@@ -135,12 +142,51 @@ export async function fetchTripsByStatusGroup(group) {
 	})
 }
 
-export async function updateTripStatus(tripName, status) {
-	return call("frappe.client.set_value", {
-		doctype: "Delivery Trip",
+
+async function forceUpdateTrip(tripName, fields) {
+	return call("hrms.api.delivery_trip.force_update_delivery_trip", {
 		name: tripName,
-		fieldname: "status",
-		value: status,
+		fields,
+	})
+}
+
+export async function updateTripStatus(tripName, status) {
+	return forceUpdateTrip(tripName, { status })
+}
+
+// Start: driver's current position is recorded as the departure location
+export async function startTrip(tripName, { latitude, longitude }) {
+	return forceUpdateTrip(tripName, {
+		status: "In Transit",
+		departure_location_latitude: latitude,
+		departure_location_longitude: longitude,
+	})
+}
+
+// Delivered: driver's current position is recorded as the arrival location
+export async function markDelivered(tripName, { latitude, longitude }) {
+	return forceUpdateTrip(tripName, {
+		status: "Delivered",
+		arrival_location_latitude: latitude,
+		arrival_location_longitude: longitude,
+	})
+}
+
+// Stop (renamed from Emergency Stop)
+export async function stopTrip(tripName, reason) {
+	return forceUpdateTrip(tripName, {
+		status: "Stopped",
+		stop_reason: reason,
+	})
+}
+
+// End: customer scale reading closes the trip out. The delivery proof file
+// is attached separately (see DeliveryTripActionSheet.vue's FileUploader),
+// this just records the weight and flips status to Completed.
+export async function completeTrip(tripName, customerFirstWeight) {
+	return forceUpdateTrip(tripName, {
+		status: "Completed",
+		lh_customer_first_weight: customerFirstWeight,
 	})
 }
 

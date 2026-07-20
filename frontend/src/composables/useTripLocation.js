@@ -48,7 +48,7 @@ export function useTripLocation() {
 	//
 	async function resolveShortMapUrl(url) {
 		try {
-			return await call("hrms.api.resolve_map_coordinates", { url })
+			return await call("hrms.api.delivery_trip.resolve_map_coordinates", { url })
 		} catch {
 			return null
 		}
