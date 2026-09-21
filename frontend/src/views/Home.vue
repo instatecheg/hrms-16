@@ -2,7 +2,7 @@
 	<BaseLayout>
 		<template #body>
 			<div class="flex flex-col items-center my-7 p-4 gap-7 bg-[#fbf6f1]">
-				<div class="w-full grid grid-cols-2 gap-4">
+				<div class="w-full grid grid-cols-3 gap-3">
 					<router-link
 						v-for="link in quickLinks"
 						:key="link.route"
@@ -14,7 +14,7 @@
 						>
 							<component :is="link.icon" class="w-6 h-6" />
 						</div>
-						<span class="text-sm font-medium text-[#0062a3] text-center">
+						<span class="text-xs font-medium text-[#0062a3] text-center">
 							{{ link.title }}
 						</span>
 					</router-link>
@@ -36,6 +36,7 @@ import RequestPanel from "@/components/RequestPanel.vue"
 import TodayTrips from "@/components/TodayTrips.vue"
 import ExpenseIcon from "@/components/icons/ExpenseIcon.vue"
 import DeliveryTripIcon from "@/components/icons/DeliveryTripIcon.vue"
+import MaintenanceIcon from "@/components/icons/MaintenanceIcon.vue"
 
 const __ = inject("$translate")
 
@@ -49,6 +50,11 @@ const quickLinks = [
 		icon: markRaw(ExpenseIcon),
 		title: __("Claim an Expense"),
 		route: "ExpenseClaimFormView",
+	},
+	{
+		icon: markRaw(MaintenanceIcon),
+		title: __("Maintenance"),
+		route: "MaintenanceDashboard",
 	},
 ]
 </script>
