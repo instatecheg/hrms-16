@@ -470,7 +470,7 @@ msgstr ""
 
 #: frontend/src/components/ExpensesTable.vue:123
 msgid "Add Expense"
-msgstr ""
+msgstr "إضافة مصروف"
 
 #: hrms/public/js/performance/performance_feedback.js:95
 msgid "Add Feedback"
@@ -478,7 +478,7 @@ msgstr ""
 
 #: frontend/src/components/ExpenseTaxesTable.vue:118
 msgid "Add Tax"
-msgstr ""
+msgstr "إضافة ضريبة"
 
 #: hrms/hr/employee_property_update.js:116
 msgid "Add to Details"
@@ -1096,7 +1096,7 @@ msgstr "وضع تحت التدريب"
 #: frontend/src/components/RequestActionSheet.vue:290
 #: hrms/hr/doctype/leave_application/leave_application.json
 msgid "Approval"
-msgstr ""
+msgstr "الموافقة"
 
 #. Label of the approval_status (Select) field in DocType 'Expense Claim'
 #: hrms/hr/doctype/expense_claim/expense_claim.json
@@ -1110,7 +1110,7 @@ msgstr "حالة الموافقة يجب ان تكون (موافق عليه) ا�
 #: frontend/src/components/RequestActionSheet.vue:108
 #: hrms/hr/doctype/shift_assignment_tool/shift_assignment_tool.js:119
 msgid "Approve"
-msgstr ""
+msgstr "موافقة"
 
 #. Option for the 'Approval Status' (Select) field in DocType 'Expense Claim'
 #. Option for the 'Status' (Select) field in DocType 'Leave Application'
@@ -1121,7 +1121,7 @@ msgstr ""
 #: hrms/hr/doctype/leave_application/leave_application.json
 #: hrms/hr/doctype/shift_request/shift_request.json
 msgid "Approved"
-msgstr ""
+msgstr "تمت الموافقة"
 
 #. Label of the approver (Link) field in DocType 'Department Approver'
 #. Label of the approver (Link) field in DocType 'Shift Assignment Tool'
@@ -1143,11 +1143,11 @@ msgstr "أبريل"
 
 #: frontend/src/components/FileUploaderView.vue:53
 msgid "Are you sure you want to delete the attachment"
-msgstr ""
+msgstr "هل أنت متأكد أنك تريد حذف المرفق؟"
 
 #: frontend/src/components/FormView.vue:228
 msgid "Are you sure you want to delete the {0}"
-msgstr ""
+msgstr "هل أنت متأكد أنك تريد حذف {0}؟"
 
 #: hrms/payroll/doctype/salary_slip/salary_slip_list.js:19
 msgid "Are you sure you want to email the selected salary slips?"
@@ -1292,7 +1292,7 @@ msgstr "الحضور"
 
 #: frontend/src/components/AttendanceCalendar.vue:3
 msgid "Attendance Calendar"
-msgstr ""
+msgstr "تقويم الحضور"
 
 #. Label of a chart in the Shift & Attendance Workspace
 #: hrms/hr/workspace/shift_&_attendance/shift_&_attendance.json
@@ -1339,7 +1339,7 @@ msgstr "طلب حضور"
 
 #: frontend/src/views/attendance/AttendanceRequestList.vue:5
 msgid "Attendance Request History"
-msgstr ""
+msgstr "سجل طلبات الحضور"
 
 #. Label of the attendance_settings_section (Section Break) field in DocType
 #. 'HR Settings'
@@ -1839,11 +1839,11 @@ msgstr ""
 
 #: frontend/src/components/CheckInPanel.vue:123
 msgid "Check In"
-msgstr ""
+msgstr "تسجيل حضور"
 
 #: frontend/src/components/CheckInPanel.vue:122
 msgid "Check Out"
-msgstr ""
+msgstr "تسجيل انصراف"
 
 #. Label of the check_vacancies (Check) field in DocType 'HR Settings'
 #: hrms/hr/doctype/hr_settings/hr_settings.json
@@ -1857,7 +1857,7 @@ msgstr ""
 
 #: frontend/src/components/CheckInPanel.vue:159
 msgid "Check-in"
-msgstr ""
+msgstr "تسجيل الحضور"
 
 #. Label of the check_in_date (Date) field in DocType 'Travel Itinerary'
 #: hrms/hr/doctype/travel_itinerary/travel_itinerary.json
@@ -1866,7 +1866,7 @@ msgstr "تاريخ الوصول"
 
 #: frontend/src/components/CheckInPanel.vue:159
 msgid "Check-out"
-msgstr ""
+msgstr "تسجيل الانصراف"
 
 #. Label of the check_out_date (Date) field in DocType 'Travel Itinerary'
 #: hrms/hr/doctype/travel_itinerary/travel_itinerary.json
@@ -1906,13 +1906,13 @@ msgstr "فائدة للمطالبة"
 #: frontend/src/views/Home.vue:47
 #: frontend/src/views/expense_claim/Dashboard.vue:17
 msgid "Claim an Expense"
-msgstr ""
+msgstr "تقديم مطالبة نفقات"
 
 #. Option for the 'Status' (Select) field in DocType 'Employee Advance'
 #: frontend/src/views/employee_advance/List.vue:42
 #: hrms/hr/doctype/employee_advance/employee_advance.json
 msgid "Claimed"
-msgstr "ادعى"
+msgstr "تمت المطالبة"
 
 #. Label of the claimed_amount (Currency) field in DocType 'Employee Advance'
 #. Label of the claimed_amount (Currency) field in DocType 'Employee Benefit
@@ -1974,7 +1974,7 @@ msgstr "ملاحظات ختامية"
 
 #: frontend/src/views/Profile.vue:177
 msgid "Company Information"
-msgstr ""
+msgstr "معلومات الشركة"
 
 #. Name of a DocType
 #. Label of the compensatory_request (Link) field in DocType 'Leave Allocation'
@@ -2030,7 +2030,7 @@ msgstr "مؤتمر"
 
 #: frontend/src/components/CheckInPanel.vue:73
 msgid "Confirm {0}"
-msgstr ""
+msgstr "تأكيد {0}"
 
 #: hrms/hr/report/shift_attendance/shift_attendance.js:58
 msgid "Consider Grace Period"
@@ -2483,11 +2483,11 @@ msgstr ""
 
 #: frontend/src/components/FileUploaderView.vue:49
 msgid "Delete Attachment"
-msgstr ""
+msgstr "حذف المرفق"
 
 #: frontend/src/components/FormView.vue:224
 msgid "Delete {0}"
-msgstr ""
+msgstr "حذف {0}"
 
 #. Name of a DocType
 #: hrms/hr/doctype/department_approver/department_approver.json
@@ -2561,7 +2561,7 @@ msgstr ""
 
 #: frontend/src/views/AppSettings.vue:40
 msgid "Disabling Push Notifications..."
-msgstr ""
+msgstr "جارٍ تعطيل الإشعارات الفورية..."
 
 #. Label of the do_not_include_in_accounts (Check) field in DocType 'Salary
 #. Component'
@@ -2727,11 +2727,11 @@ msgstr ""
 
 #: frontend/src/components/ExpensesTable.vue:213
 msgid "Edit Expense Item"
-msgstr ""
+msgstr "تعديل بند المصروف"
 
 #: frontend/src/components/ExpenseTaxesTable.vue:221
 msgid "Edit Expense Tax"
-msgstr ""
+msgstr "تعديل ضريبة المصروف"
 
 #. Label of the effective_from (Date) field in DocType 'Leave Policy
 #. Assignment'
@@ -2781,7 +2781,7 @@ msgstr ""
 
 #: frontend/src/views/expense_claim/Dashboard.vue:35
 msgid "Employee Advance Balance"
-msgstr ""
+msgstr "رصيد سلف الموظف"
 
 #. Name of a report
 #. Label of a Link in the Expenses Workspace
@@ -2863,11 +2863,11 @@ msgstr "نشاط صعود الموظف"
 #: hrms/hr/workspace/hr/hr.json
 #: hrms/hr/workspace/shift_&_attendance/shift_&_attendance.json
 msgid "Employee Checkin"
-msgstr "فحص الموظف"
+msgstr "تسجيل حضور الموظف"
 
 #: frontend/src/views/attendance/EmployeeCheckinList.vue:5
 msgid "Employee Checkin History"
-msgstr ""
+msgstr "سجل تسجيلات حضور الموظف"
 
 #. Name of a DocType
 #: hrms/payroll/doctype/employee_cost_center/employee_cost_center.json
@@ -3413,7 +3413,7 @@ msgstr ""
 
 #: frontend/src/views/AppSettings.vue:25
 msgid "Enable Push Notifications"
-msgstr ""
+msgstr "تفعيل الإشعارات الفورية"
 
 #. Description of the 'Apply for Public Holiday' (Check) field in DocType
 #. 'Overtime Type'
@@ -3435,7 +3435,7 @@ msgstr ""
 
 #: frontend/src/views/AppSettings.vue:40
 msgid "Enabling Push Notifications..."
-msgstr ""
+msgstr "جارٍ تفعيل الإشعارات الفورية..."
 
 #. Label of the encashment (Section Break) field in DocType 'Leave Type'
 #: hrms/hr/doctype/leave_type/leave_type.json
@@ -3509,19 +3509,19 @@ msgstr ""
 
 #: frontend/src/components/FormField.vue:42
 msgid "Enter {0}"
-msgstr ""
+msgstr "أدخل {0}"
 
 #: frontend/src/components/FormView.vue:543
 msgid "Error creating {0}"
-msgstr ""
+msgstr "خطأ في إنشاء {0}"
 
 #: frontend/src/components/FormView.vue:592
 msgid "Error deleting {0}"
-msgstr ""
+msgstr "خطأ في حذف {0}"
 
 #: frontend/src/utils/commonUtils.js:46
 msgid "Error downloading PDF"
-msgstr ""
+msgstr "خطأ في تحميل ملف PDF"
 
 #: hrms/payroll/doctype/salary_slip/salary_slip.py:1320
 msgid "Error in formula or condition"
@@ -3537,7 +3537,7 @@ msgstr ""
 
 #: frontend/src/components/FormView.vue:570
 msgid "Error updating {0}"
-msgstr ""
+msgstr "خطأ في تحديث {0}"
 
 #: hrms/payroll/doctype/salary_slip/salary_slip.py:2614
 msgid "Error while evaluating the {doctype} {doclink} at row {row_id}. <br><br> <b>Error:</b> {error} <br><br> <b>Hint:</b> {description}"
@@ -3823,7 +3823,7 @@ msgstr "تفاصيل  المطالبة بالنفقات"
 
 #: frontend/src/components/ExpenseClaimSummary.vue:3
 msgid "Expense Claim Summary"
-msgstr ""
+msgstr "ملخص مطالبات النفقات"
 
 #. Label of the expense_type (Link) field in DocType 'Expense Claim Detail'
 #. Name of a DocType
@@ -3848,7 +3848,7 @@ msgstr "المطالبة بالنفقات {0} بالفعل موجوده في س�
 #: frontend/src/views/expense_claim/Dashboard.vue:2
 #: hrms/hr/workspace/expenses/expenses.json
 msgid "Expense Claims"
-msgstr ""
+msgstr "مطالبات النفقات"
 
 #. Label of the expense_date (Date) field in DocType 'Expense Claim Detail'
 #: hrms/hr/doctype/expense_claim_detail/expense_claim_detail.json
@@ -3857,7 +3857,7 @@ msgstr "تاريخ النفقات"
 
 #: frontend/src/components/ExpensesTable.vue:211
 msgid "Expense Item"
-msgstr ""
+msgstr "بند المصروف"
 
 #. Label of the section_break_9 (Section Break) field in DocType 'Employee
 #. Benefit Claim'
@@ -3867,7 +3867,7 @@ msgstr "إثبات المصاريف"
 
 #: frontend/src/components/ExpenseTaxesTable.vue:219
 msgid "Expense Tax"
-msgstr ""
+msgstr "ضريبة المصروف"
 
 #. Label of the taxes (Table) field in DocType 'Expense Claim'
 #. Name of a DocType
@@ -4054,7 +4054,7 @@ msgstr ""
 
 #: frontend/src/components/FilePreviewModal.vue:4
 msgid "File Preview"
-msgstr ""
+msgstr "معاينة الملف"
 
 #: hrms/hr/doctype/leave_application/leave_application.js:99
 #: hrms/hr/doctype/leave_encashment/leave_encashment.js:50
@@ -4341,7 +4341,7 @@ msgstr ""
 #: frontend/src/components/CheckInPanel.vue:143
 #: hrms/public/js/utils/index.js:185
 msgid "Geolocation is not supported by your current browser"
-msgstr ""
+msgstr "المتصفح الحالي لا يدعم تحديد الموقع الجغرافي"
 
 #: hrms/payroll/doctype/employee_tax_exemption_proof_submission/employee_tax_exemption_proof_submission.js:47
 msgid "Get Details From Declaration"
@@ -4370,11 +4370,11 @@ msgstr "الحصول على نموذج"
 
 #: frontend/src/components/InstallPrompt.vue:8
 msgid "Get the app on your device for easy access & a better experience!"
-msgstr ""
+msgstr "ثبّت التطبيق على جهازك لسهولة الوصول وتجربة أفضل!"
 
 #: frontend/src/components/InstallPrompt.vue:41
 msgid "Get the app on your iPhone for easy access & a better experience"
-msgstr ""
+msgstr "ثبّت التطبيق على جهاز iPhone لسهولة الوصول وتجربة أفضل"
 
 #. Option for the 'Meal Preference' (Select) field in DocType 'Travel
 #. Itinerary'
@@ -4384,11 +4384,11 @@ msgstr "خالي من الغلوتين"
 
 #: frontend/src/views/InvalidEmployee.vue:12
 msgid "Go to Login"
-msgstr ""
+msgstr "الانتقال إلى تسجيل الدخول"
 
 #: frontend/src/views/Login.vue:70
 msgid "Go to Reset Password page"
-msgstr ""
+msgstr "الانتقال إلى صفحة إعادة تعيين كلمة المرور"
 
 #. Label of the goal_completion (Percent) field in DocType 'Appraisal KRA'
 #: hrms/hr/doctype/appraisal_kra/appraisal_kra.json
@@ -4646,7 +4646,7 @@ msgstr ""
 
 #: frontend/src/components/CheckInPanel.vue:4
 msgid "Hey, {0} 👋"
-msgstr ""
+msgstr "مرحبًا، {0} 👋"
 
 #: hrms/hr/dashboard_chart_source/hiring_vs_attrition_count/hiring_vs_attrition_count.py:55
 msgid "Hiring Count"
@@ -4893,7 +4893,7 @@ msgstr ""
 #. Label of the include_holidays (Check) field in DocType 'Attendance Request'
 #: hrms/hr/doctype/attendance_request/attendance_request.json
 msgid "Include Holidays"
-msgstr ""
+msgstr "تضمين العطلات"
 
 #. Label of the include_holidays_in_total_working_days (Check) field in DocType
 #. 'Payroll Settings'
@@ -5012,12 +5012,12 @@ msgstr "فحص"
 
 #: frontend/src/components/InstallPrompt.vue:13
 msgid "Install"
-msgstr ""
+msgstr "تثبيت"
 
 #: frontend/src/components/InstallPrompt.vue:5
 #: frontend/src/components/InstallPrompt.vue:28
 msgid "Install Frappe HR"
-msgstr ""
+msgstr "تثبيت Frappe HR"
 
 #: hrms/hr/doctype/leave_application/leave_application.py:435
 msgid "Insufficient Balance"
@@ -5612,7 +5612,7 @@ msgstr "آخر مزامنة للفحص"
 
 #: frontend/src/components/CheckInPanel.vue:9
 msgid "Last {0} was at {1}"
-msgstr ""
+msgstr "آخر {0} كان {1}"
 
 #: hrms/hr/report/shift_attendance/shift_attendance.py:180
 msgid "Late Entries"
@@ -5647,7 +5647,7 @@ msgstr ""
 
 #: frontend/src/components/CheckInPanel.vue:131
 msgid "Latitude: {0}°"
-msgstr ""
+msgstr "خط العرض: {0}°"
 
 #. Option for the 'Calculate Payroll Working Days Based On' (Select) field in
 #. DocType 'Payroll Settings'
@@ -5810,7 +5810,7 @@ msgstr "ترك Encshment المبلغ لكل يوم"
 
 #: frontend/src/views/leave/List.vue:5
 msgid "Leave History"
-msgstr ""
+msgstr "سجل الإجازات"
 
 #. Name of a report
 #: hrms/hr/report/leave_ledger/leave_ledger.json
@@ -6039,7 +6039,7 @@ msgstr "الاجازات"
 
 #: frontend/src/views/leave/Dashboard.vue:2
 msgid "Leaves & Holidays"
-msgstr ""
+msgstr "الإجازات والعطلات"
 
 #. Label of the leaves_after_adjustment (Float) field in DocType 'Leave
 #. Adjustment'
@@ -6129,7 +6129,7 @@ msgstr ""
 
 #: frontend/src/components/CheckInPanel.vue:145
 msgid "Locating..."
-msgstr ""
+msgstr "جارٍ تحديد الموقع..."
 
 #. Label of the device_id (Data) field in DocType 'Employee Checkin'
 #: hrms/hr/doctype/employee_checkin/employee_checkin.json
@@ -6143,7 +6143,7 @@ msgstr "الإقامة المطلوبة"
 
 #: frontend/src/views/Profile.vue:107
 msgid "Log Out"
-msgstr ""
+msgstr "تسجيل الخروج"
 
 #. Label of the log_type (Select) field in DocType 'Employee Checkin'
 #: frontend/src/views/attendance/EmployeeCheckinList.vue:25
@@ -6157,15 +6157,15 @@ msgstr "نوع السجل مطلوب لتسجيلات الوقوع في التح
 
 #: frontend/src/views/InvalidEmployee.vue:7
 msgid "Login Failed"
-msgstr ""
+msgstr "فشل تسجيل الدخول"
 
 #: frontend/src/views/Login.vue:8
 msgid "Login to Frappe HR"
-msgstr ""
+msgstr "تسجيل الدخول إلى Frappe HR"
 
 #: frontend/src/components/CheckInPanel.vue:132
 msgid "Longitude: {0}°"
-msgstr ""
+msgstr "خط الطول: {0}°"
 
 #. Label of the lower_range (Currency) field in DocType 'Job Applicant'
 #. Label of the lower_range (Currency) field in DocType 'Job Opening'
@@ -6510,19 +6510,19 @@ msgstr ""
 
 #: frontend/src/views/employee_advance/List.vue:19
 msgid "My Advances"
-msgstr ""
+msgstr "سلفي"
 
 #: frontend/src/views/expense_claim/List.vue:19
 msgid "My Claims"
-msgstr ""
+msgstr "مطالباتي"
 
 #: frontend/src/views/leave/List.vue:19
 msgid "My Leaves"
-msgstr ""
+msgstr "إجازاتي"
 
 #: frontend/src/components/RequestPanel.vue:36
 msgid "My Requests"
-msgstr ""
+msgstr "طلباتي"
 
 #: hrms/payroll/doctype/salary_slip/salary_slip.py:1306
 #: hrms/payroll/doctype/salary_slip/salary_slip.py:2530
@@ -6572,11 +6572,11 @@ msgstr "معرف الموظف الجديد"
 
 #: frontend/src/components/ExpensesTable.vue:213
 msgid "New Expense Item"
-msgstr ""
+msgstr "بند مصروف جديد"
 
 #: frontend/src/components/ExpenseTaxesTable.vue:221
 msgid "New Expense Tax"
-msgstr ""
+msgstr "ضريبة مصروف جديدة"
 
 #: hrms/public/js/templates/performance_feedback.html:26
 msgid "New Feedback"
@@ -6674,7 +6674,7 @@ msgstr ""
 
 #: frontend/src/views/InvalidEmployee.vue:8
 msgid "No active employee found associated with the email ID {0}. Try logging in with your employee email ID or contact your HR manager for access."
-msgstr ""
+msgstr "لم يتم العثور على موظف نشط مرتبط بالبريد الإلكتروني {0}. جرّب تسجيل الدخول ببريد الموظف الخاص بك أو تواصل مع مدير الموارد البشرية للحصول على صلاحية الوصول."
 
 #: hrms/payroll/doctype/salary_slip/salary_slip.py:435
 msgid "No active or default Salary Structure found for employee {0} for the given dates"
@@ -6686,7 +6686,7 @@ msgstr "لم يتم إضافة مصاريف إضافية"
 
 #: frontend/src/components/ExpenseAdvancesTable.vue:63
 msgid "No advances found"
-msgstr ""
+msgstr "لا توجد سلف"
 
 #: hrms/payroll/doctype/gratuity/gratuity.py:281
 msgid "No applicable Earning component found in last salary slip for Gratuity Rule: {0}"
@@ -6751,7 +6751,7 @@ msgstr ""
 
 #: frontend/src/components/ExpensesTable.vue:64
 msgid "No expenses added"
-msgstr ""
+msgstr "لم تتم إضافة أي مصروفات"
 
 #: hrms/public/js/templates/feedback_history.html:55
 msgid "No feedback has been received yet"
@@ -6792,7 +6792,7 @@ msgstr "لم يتم العثور على أي زلة الراتب لتقديم ا
 
 #: frontend/src/views/salary_slip/Dashboard.vue:50
 msgid "No salary slips found"
-msgstr ""
+msgstr "لا توجد قسائم راتب"
 
 #: hrms/payroll/doctype/arrear/arrear.py:136
 msgid "No salary slips found for the selected employee from {0}"
@@ -6800,7 +6800,7 @@ msgstr ""
 
 #: frontend/src/components/ExpenseTaxesTable.vue:56
 msgid "No taxes added"
-msgstr ""
+msgstr "لم تتم إضافة أي ضرائب"
 
 #: hrms/hr/doctype/employee_checkin/employee_checkin.js:51
 msgid "No valid shift found for log time"
@@ -6812,7 +6812,7 @@ msgstr ""
 
 #: frontend/src/components/SalaryDetailTable.vue:32
 msgid "No {0} added"
-msgstr ""
+msgstr "لم تتم إضافة {0}"
 
 #. Option for the 'Meal Preference' (Select) field in DocType 'Travel
 #. Itinerary'
@@ -6914,11 +6914,11 @@ msgstr ""
 
 #: frontend/src/views/Login.vue:86
 msgid "OTP Code"
-msgstr ""
+msgstr "رمز التحقق (OTP)"
 
 #: frontend/src/views/Login.vue:77
 msgid "OTP Verification"
-msgstr ""
+msgstr "التحقق برمز OTP"
 
 #. Option for the 'Log Type' (Select) field in DocType 'Employee Checkin'
 #: hrms/hr/doctype/employee_checkin/employee_checkin.json
@@ -7288,7 +7288,7 @@ msgstr "برعاية جزئية ، يتطلب التمويل الجزئي"
 #: frontend/src/views/employee_advance/List.vue:42
 #: hrms/hr/doctype/employee_advance/employee_advance.json
 msgid "Partly Claimed and Returned"
-msgstr ""
+msgstr "مطالب بها جزئيًا ومرتجعة"
 
 #. Label of the password_policy (Data) field in DocType 'Payroll Settings'
 #: hrms/payroll/doctype/payroll_settings/payroll_settings.json
@@ -7577,11 +7577,11 @@ msgstr ""
 
 #: frontend/src/components/FormView.vue:291
 msgid "Permanently cancel {0}"
-msgstr ""
+msgstr "إلغاء {0} نهائيًا"
 
 #: frontend/src/components/FormView.vue:260
 msgid "Permanently submit {0}"
-msgstr ""
+msgstr "تقديم {0} نهائيًا"
 
 #: hrms/setup.py:394
 msgid "Piecework"
@@ -8057,15 +8057,15 @@ msgstr "الغرض من السفر"
 
 #: frontend/src/views/AppSettings.vue:128
 msgid "Push Notification permission denied"
-msgstr ""
+msgstr "تم رفض إذن الإشعارات الفورية"
 
 #: frontend/src/views/AppSettings.vue:96
 msgid "Push notifications disabled"
-msgstr ""
+msgstr "تم تعطيل الإشعارات الفورية"
 
 #: frontend/src/views/AppSettings.vue:80
 msgid "Push notifications have been disabled on your site"
-msgstr ""
+msgstr "تم تعطيل الإشعارات الفورية على موقعك"
 
 #. Label of the questionnaire_email_sent (Check) field in DocType 'Exit
 #. Interview'
@@ -8087,7 +8087,7 @@ msgstr ""
 
 #: frontend/src/components/QuickLinks.vue:3 frontend/src/views/Home.vue:6
 msgid "Quick Links"
-msgstr ""
+msgstr "روابط سريعة"
 
 #. Description of the 'Checkin Radius' (Int) field in DocType 'Shift Location'
 #: hrms/hr/doctype/shift_location/shift_location.json
@@ -8139,19 +8139,19 @@ msgstr ""
 
 #: frontend/src/views/attendance/Dashboard.vue:14
 msgid "Recent Attendance Requests"
-msgstr ""
+msgstr "طلبات الحضور الأخيرة"
 
 #: frontend/src/views/expense_claim/Dashboard.vue:23
 msgid "Recent Expenses"
-msgstr ""
+msgstr "المصروفات الأخيرة"
 
 #: frontend/src/views/leave/Dashboard.vue:21
 msgid "Recent Leaves"
-msgstr ""
+msgstr "الإجازات الأخيرة"
 
 #: frontend/src/views/attendance/Dashboard.vue:40
 msgid "Recent Shift Requests"
-msgstr ""
+msgstr "طلبات الوردية الأخيرة"
 
 #. Description of the 'Automatically update Last Sync of Checkin' (Check) field
 #. in DocType 'Shift Type'
@@ -8236,7 +8236,7 @@ msgstr "تفاصيل إعادة التزود بالوقود"
 #: frontend/src/components/RequestActionSheet.vue:96
 #: hrms/hr/doctype/shift_assignment_tool/shift_assignment_tool.js:126
 msgid "Reject"
-msgstr ""
+msgstr "رفض"
 
 #: hrms/hr/doctype/employee_referral/employee_referral.js:7
 msgid "Reject Employee Referral"
@@ -8244,7 +8244,7 @@ msgstr ""
 
 #: frontend/src/components/RequestActionSheet.vue:290
 msgid "Rejection"
-msgstr ""
+msgstr "الرفض"
 
 #: hrms/payroll/doctype/payroll_entry/payroll_entry.js:188
 msgid "Release Withheld Salaries"
@@ -8333,7 +8333,7 @@ msgstr ""
 
 #: frontend/src/views/Home.vue:32 frontend/src/views/attendance/Dashboard.vue:9
 msgid "Request Attendance"
-msgstr ""
+msgstr "طلب حضور"
 
 #: frontend/src/views/Home.vue:42
 msgid "Request Leave"
@@ -8341,17 +8341,17 @@ msgstr ""
 
 #: frontend/src/views/leave/Dashboard.vue:17
 msgid "Request a Leave"
-msgstr ""
+msgstr "طلب إجازة"
 
 #: frontend/src/views/Home.vue:37
 #: frontend/src/views/attendance/Dashboard.vue:35
 msgid "Request a Shift"
-msgstr ""
+msgstr "طلب وردية"
 
 #: frontend/src/components/EmployeeAdvanceBalance.vue:21
 #: frontend/src/views/Home.vue:52
 msgid "Request an Advance"
-msgstr ""
+msgstr "طلب سلفة"
 
 #. Label of the requested_by (Link) field in DocType 'Job Requisition'
 #. Label of the section_break_7 (Section Break) field in DocType 'Job
@@ -8659,7 +8659,7 @@ msgstr ""
 
 #: frontend/src/views/Profile.vue:200
 msgid "Salary Information"
-msgstr ""
+msgstr "معلومات الراتب"
 
 #. Label of the salary_per (Select) field in DocType 'Job Opening'
 #: hrms/hr/doctype/job_opening/job_opening.json
@@ -8782,7 +8782,7 @@ msgstr ""
 
 #: frontend/src/views/salary_slip/Dashboard.vue:2
 msgid "Salary Slips"
-msgstr ""
+msgstr "قسائم الراتب"
 
 #. Label of the salary_slips_created (Check) field in DocType 'Payroll Entry'
 #: hrms/payroll/doctype/payroll_entry/payroll_entry.json
@@ -8972,7 +8972,7 @@ msgstr ""
 
 #: frontend/src/views/salary_slip/Dashboard.vue:23
 msgid "Select Payroll Period"
-msgstr ""
+msgstr "اختر فترة الرواتب"
 
 #: hrms/hr/employee_property_update.js:109
 msgid "Select Property"
@@ -9220,7 +9220,7 @@ msgstr ""
 
 #: frontend/src/components/ExpenseAdvancesTable.vue:4
 msgid "Settle against Advances"
-msgstr ""
+msgstr "التسوية مقابل السلف"
 
 #: hrms/hr/doctype/full_and_final_statement/full_and_final_statement.py:55
 msgid "Settle all Payables and Receivables before submission"
@@ -9259,7 +9259,7 @@ msgstr ""
 #: hrms/hr/doctype/shift_assignment/shift_assignment.json
 #: hrms/hr/workspace/shift_&_attendance/shift_&_attendance.json
 msgid "Shift Assignment"
-msgstr "مهمة التحول"
+msgstr "تعيين وردية"
 
 #. Label of the shift_assignment_details_section (Section Break) field in
 #. DocType 'Shift Assignment Tool'
@@ -9269,7 +9269,7 @@ msgstr ""
 
 #: frontend/src/views/attendance/ShiftAssignmentList.vue:5
 msgid "Shift Assignment History"
-msgstr ""
+msgstr "سجل تعيينات الوردية"
 
 #. Name of a DocType
 #. Label of a Link in the Shift & Attendance Workspace
@@ -9335,7 +9335,7 @@ msgstr ""
 #: hrms/hr/doctype/shift_request/shift_request.json
 #: hrms/hr/workspace/shift_&_attendance/shift_&_attendance.json
 msgid "Shift Request"
-msgstr "طلب التغيير"
+msgstr "طلب وردية"
 
 #: hrms/setup.py:139 hrms/setup.py:260
 msgid "Shift Request Approver"
@@ -9431,7 +9431,7 @@ msgstr ""
 #: hrms/hr/report/shift_attendance/shift_attendance.js:28
 #: hrms/hr/workspace/shift_&_attendance/shift_&_attendance.json
 msgid "Shift Type"
-msgstr "نوع التحول"
+msgstr "نوع الوردية"
 
 #: hrms/hr/doctype/shift_schedule_assignment/shift_schedule_assignment.py:21
 msgid "Shift assignments for {0} after {1} are already created. Please change {2} date to a date later than {3} {4}"
@@ -9824,7 +9824,7 @@ msgstr "بلاطات الراتب الخاضعة للضريبة"
 #: frontend/src/components/ExpenseTaxesTable.vue:4
 #: hrms/hr/doctype/expense_claim/expense_claim.json
 msgid "Taxes & Charges"
-msgstr ""
+msgstr "الضرائب والرسوم"
 
 #. Label of the taxes_and_charges_on_income_tax_section (Section Break) field
 #. in DocType 'Income Tax Slab'
@@ -9839,19 +9839,19 @@ msgstr "سيارة اجره"
 
 #: frontend/src/views/employee_advance/List.vue:19
 msgid "Team Advances"
-msgstr ""
+msgstr "سلف الفريق"
 
 #: frontend/src/views/expense_claim/List.vue:19
 msgid "Team Claims"
-msgstr ""
+msgstr "مطالبات الفريق"
 
 #: frontend/src/views/leave/List.vue:19
 msgid "Team Leaves"
-msgstr ""
+msgstr "إجازات الفريق"
 
 #: frontend/src/components/RequestPanel.vue:36
 msgid "Team Requests"
-msgstr ""
+msgstr "طلبات الفريق"
 
 #: hrms/hr/page/team_updates/team_updates.js:4
 msgid "Team Updates"
@@ -10634,7 +10634,7 @@ msgstr ""
 #: frontend/src/components/ExpenseAdvancesTable.vue:36
 #: hrms/hr/doctype/expense_claim_advance/expense_claim_advance.json
 msgid "Unclaimed Amount"
-msgstr ""
+msgstr "المبلغ غير المطالب به"
 
 #. Label of the base_unclaimed_amount (Currency) field in DocType 'Expense
 #. Claim Advance'
@@ -10731,7 +10731,7 @@ msgstr "إجازات غير مستخدمة"
 
 #: frontend/src/components/Holidays.vue:4
 msgid "Upcoming Holidays"
-msgstr ""
+msgstr "العطلات القادمة"
 
 #: hrms/controllers/employee_reminders.py:69
 msgid "Upcoming Holidays Reminder"
@@ -10739,11 +10739,11 @@ msgstr ""
 
 #: frontend/src/views/attendance/Dashboard.vue:23
 msgid "Upcoming Shifts"
-msgstr ""
+msgstr "الورديات القادمة"
 
 #: frontend/src/components/ExpensesTable.vue:123
 msgid "Update Expense"
-msgstr ""
+msgstr "تحديث المصروف"
 
 #: hrms/hr/doctype/interview/interview.py:71
 msgid "Update Job Applicant"
@@ -10767,7 +10767,7 @@ msgstr ""
 
 #: frontend/src/components/ExpenseTaxesTable.vue:118
 msgid "Update Tax"
-msgstr ""
+msgstr "تحديث الضريبة"
 
 #: hrms/hr/doctype/attendance_request/attendance_request.py:115
 msgid "Updated status from {0} to {1} for date {2} in the attendance record {3}"
@@ -10799,12 +10799,12 @@ msgstr "رفع HTML"
 
 #: frontend/src/components/FileUploaderView.vue:11
 msgid "Upload images or documents"
-msgstr ""
+msgstr "رفع صور أو مستندات"
 
 #: frontend/src/components/FormView.vue:124
 #: frontend/src/components/FormView.vue:163
 msgid "Uploading..."
-msgstr ""
+msgstr "جارٍ الرفع..."
 
 #. Label of the upper_range (Currency) field in DocType 'Job Applicant'
 #. Label of the upper_range (Currency) field in DocType 'Job Opening'
@@ -10917,7 +10917,7 @@ msgstr ""
 
 #: frontend/src/components/LeaveBalance.vue:14
 msgid "View Leave History"
-msgstr ""
+msgstr "عرض سجل الإجازات"
 
 #: frontend/src/views/Home.vue:57
 msgid "View Salary Slips"
@@ -11102,7 +11102,7 @@ msgstr "ورشة عمل"
 #: hrms/payroll/doctype/salary_detail/salary_detail.json
 #: hrms/payroll/doctype/salary_slip/salary_slip.json
 msgid "Year To Date"
-msgstr ""
+msgstr "منذ بداية العام حتى اليوم"
 
 #. Label of the base_year_to_date (Currency) field in DocType 'Salary Slip'
 #: hrms/payroll/doctype/salary_slip/salary_slip.json
@@ -11165,27 +11165,27 @@ msgstr ""
 
 #: frontend/src/components/EmployeeAdvanceBalance.vue:26
 msgid "You have no advances"
-msgstr ""
+msgstr "ليس لديك أي سلف"
 
 #: frontend/src/components/LeaveBalance.vue:42
 msgid "You have no leaves allocated"
-msgstr ""
+msgstr "ليس لديك إجازات مخصصة"
 
 #: frontend/src/views/Notifications.vue:91
 msgid "You have no notifications"
-msgstr ""
+msgstr "ليس لديك أي إشعارات"
 
 #: frontend/src/components/RequestList.vue:31
 msgid "You have no requests"
-msgstr ""
+msgstr "ليس لديك أي طلبات"
 
 #: frontend/src/components/Holidays.vue:32
 msgid "You have no upcoming holidays"
-msgstr ""
+msgstr "ليس لديك عطلات قادمة"
 
 #: frontend/src/views/attendance/Dashboard.vue:29
 msgid "You have no upcoming shifts"
-msgstr ""
+msgstr "ليس لديك ورديات قادمة"
 
 #: hrms/overrides/employee_master.py:83
 msgid "You may add additional details, if any, and submit the offer."
@@ -11205,7 +11205,7 @@ msgstr ""
 
 #: frontend/src/views/Login.vue:61
 msgid "Your password has expired. Please reset your password to continue"
-msgstr ""
+msgstr "انتهت صلاحية كلمة المرور. يرجى إعادة تعيينها للمتابعة"
 
 #: hrms/hr/doctype/compensatory_leave_request/compensatory_leave_request.py:100
 msgid "active"
@@ -11292,7 +11292,7 @@ msgstr ""
 
 #: frontend/src/components/ExpenseClaimItem.vue:84
 msgid "{0} & {1} more"
-msgstr ""
+msgstr "{0} و{1} أخرى"
 
 #: hrms/hr/doctype/overtime_slip/overtime_slip.py:489
 msgid "{0} : {1}"
@@ -11324,7 +11324,7 @@ msgstr ""
 
 #: frontend/src/views/Notifications.vue:27
 msgid "{0} Unread"
-msgstr ""
+msgstr "{0} غير مقروءة"
 
 #: hrms/hr/doctype/leave_allocation/leave_allocation.py:203
 msgid "{0} already allocated for Employee {1} for period {2} to {3}"
@@ -11357,12 +11357,12 @@ msgstr "تم إنشاء {0} بنجاح!"
 
 #: frontend/src/components/FormView.vue:583
 msgid "{0} deleted successfully!"
-msgstr ""
+msgstr "تم حذف {0} بنجاح!"
 
 #: frontend/src/components/CheckInPanel.vue:186
 #: frontend/src/components/RequestActionSheet.vue:290
 msgid "{0} failed!"
-msgstr ""
+msgstr "فشلت عملية {0}!"
 
 #: hrms/payroll/doctype/additional_salary/additional_salary.py:175
 msgid "{0} has {1} enabled"
@@ -11411,11 +11411,11 @@ msgstr ""
 
 #: frontend/src/components/CheckInPanel.vue:174
 msgid "{0} successful!"
-msgstr ""
+msgstr "تمت عملية {0} بنجاح!"
 
 #: frontend/src/components/RequestActionSheet.vue:280
 msgid "{0} successfully!"
-msgstr ""
+msgstr "{0} بنجاح!"
 
 #: hrms/hr/doctype/shift_assignment_tool/shift_assignment_tool.js:261
 msgid "{0} to {1} employee(s)?"
@@ -11423,7 +11423,7 @@ msgstr ""
 
 #: frontend/src/components/FormView.vue:561
 msgid "{0} updated successfully!"
-msgstr ""
+msgstr "تم تحديث {0} بنجاح!"
 
 #: hrms/hr/doctype/staffing_plan/staffing_plan.py:128
 msgid "{0} vacancies and {1} budget for {2} already planned for subsidiary companies of {3}. You can only plan for upto {4} vacancies and and budget {5} as per staffing plan {6} for parent company {3}."
@@ -11454,7 +11454,7 @@ msgstr "{0}: من {0} من نوع {1}"
 #: frontend/src/components/ShiftAssignmentItem.vue:12
 #: frontend/src/components/ShiftRequestItem.vue:17
 msgid "{0}d"
-msgstr ""
+msgstr "{0} يوم"
 
 #. Count format of shortcut in the Shift & Attendance Workspace
 #: hrms/hr/workspace/shift_&_attendance/shift_&_attendance.json
@@ -11487,3 +11487,471 @@ msgstr ""
 msgid "{} {} open for this position."
 msgstr ""
 
+#: frontend (mobile app, logistics branch)
+msgid "All Statuses"
+msgstr "جميع الحالات"
+
+#: frontend (mobile app, logistics branch)
+msgid "Amount: {0}"
+msgstr "المبلغ: {0}"
+
+#: frontend (mobile app, logistics branch)
+msgid "Approved & Draft"
+msgstr "تمت الموافقة وقيد المسودة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Approved & Submitted"
+msgstr "تمت الموافقة والتقديم"
+
+#: frontend (mobile app, logistics branch)
+msgid "Approved & Unpaid"
+msgstr "تمت الموافقة وغير مدفوعة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Approval failed!"
+msgstr "فشلت عملية الموافقة!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Approved successfully!"
+msgstr "تمت الموافقة بنجاح!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Arrival Location Latitude"
+msgstr "خط عرض موقع الوصول"
+
+#: frontend (mobile app, logistics branch)
+msgid "Arrival Location Longitude"
+msgstr "خط طول موقع الوصول"
+
+#: frontend (mobile app, logistics branch)
+msgid "Attendance Dates"
+msgstr "تواريخ الحضور"
+
+#: frontend (mobile app, logistics branch)
+msgid "Back to Login"
+msgstr "العودة إلى تسجيل الدخول"
+
+#: frontend (mobile app, logistics branch)
+msgid "Changing language..."
+msgstr "جارٍ تغيير اللغة..."
+
+#: frontend (mobile app, logistics branch)
+msgid "check-in"
+msgstr "تسجيل حضور"
+
+#: frontend (mobile app, logistics branch)
+msgid "check-out"
+msgstr "تسجيل انصراف"
+
+#: frontend (mobile app, logistics branch)
+msgid "Confirm Stop"
+msgstr "تأكيد الإيقاف"
+
+#: frontend (mobile app, logistics branch)
+msgid "Current Password"
+msgstr "كلمة المرور الحالية"
+
+#: frontend (mobile app, logistics branch)
+msgid "Customer Scale"
+msgstr "ميزان العميل"
+
+#: frontend (mobile app, logistics branch)
+msgid "Customer scale and delivery proof are both required."
+msgstr "ميزان العميل وإثبات التسليم كلاهما مطلوبان."
+
+#: frontend (mobile app, logistics branch)
+msgid "Delivery Proof"
+msgstr "إثبات التسليم"
+
+#: frontend (mobile app, logistics branch)
+msgid "Delivery Trips"
+msgstr "رحلات التسليم"
+
+#: frontend (mobile app, logistics branch)
+msgid "Delivery Trips Summary"
+msgstr "ملخص رحلات التسليم"
+
+#: frontend (mobile app, logistics branch)
+msgid "Departure Location Latitude"
+msgstr "خط عرض موقع المغادرة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Departure Location Longitude"
+msgstr "خط طول موقع المغادرة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Describe what happened..."
+msgstr "اشرح ما حدث..."
+
+#: frontend (mobile app, logistics branch)
+msgid "Destination"
+msgstr "الوجهة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Destination Location"
+msgstr "موقع الوجهة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Document cancellation failed!"
+msgstr "فشلت عملية إلغاء المستند!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Document cancelled successfully!"
+msgstr "تم إلغاء المستند بنجاح!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Document submission failed!"
+msgstr "فشلت عملية تقديم المستند!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Document submitted successfully!"
+msgstr "تم تقديم المستند بنجاح!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Download Failed"
+msgstr "فشل التحميل"
+
+#: frontend (mobile app, logistics branch)
+msgid "Enter weight"
+msgstr "أدخل الوزن"
+
+#: frontend (mobile app, logistics branch)
+msgid "Enter your email address and we'll send you a link to reset your password."
+msgstr "أدخل بريدك الإلكتروني وسنرسل إليك رابطًا لإعادة تعيين كلمة المرور."
+
+#: frontend (mobile app, logistics branch)
+msgid "Error applying workflow action: {0}"
+msgstr "خطأ في تنفيذ إجراء سير العمل: {0}"
+
+#: frontend (mobile app, logistics branch)
+msgid "Failed to change language"
+msgstr "تعذر تغيير اللغة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Failed to send reset link"
+msgstr "تعذر إرسال رابط إعادة التعيين"
+
+#: frontend (mobile app, logistics branch)
+msgid "Failed to update password"
+msgstr "تعذر تحديث كلمة المرور"
+
+#: frontend (mobile app, logistics branch)
+msgid "File deletion failed. {0}"
+msgstr "فشل حذف الملف. {0}"
+
+#: frontend (mobile app, logistics branch)
+msgid "File upload failed for {0}. {1}"
+msgstr "فشل رفع الملف {0}. {1}"
+
+#: frontend (mobile app, logistics branch)
+msgid "History"
+msgstr "السجل"
+
+#: frontend (mobile app, logistics branch)
+msgid "Invalid Map URL"
+msgstr "رابط الخريطة غير صالح"
+
+#: frontend (mobile app, logistics branch)
+msgid "Language {0} is not available on this site. Please contact your administrator."
+msgstr "اللغة {0} غير متاحة على هذا الموقع. يرجى التواصل مع المسؤول."
+
+#: frontend (mobile app, logistics branch)
+msgid "Leave Dates"
+msgstr "تواريخ الإجازة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Location Error"
+msgstr "خطأ في الموقع"
+
+#: frontend (mobile app, logistics branch)
+msgid "Location Verified"
+msgstr "تم التحقق من الموقع"
+
+#: frontend (mobile app, logistics branch)
+msgid "Location detected successfully."
+msgstr "تم تحديد الموقع بنجاح."
+
+#: frontend (mobile app, logistics branch)
+msgid "Location information is unavailable."
+msgstr "معلومات الموقع غير متاحة."
+
+#: frontend (mobile app, logistics branch)
+msgid "Location permission denied. Please enable location access."
+msgstr "تم رفض إذن الموقع. يرجى تفعيل الوصول إلى الموقع."
+
+#: frontend (mobile app, logistics branch)
+msgid "Location request timed out."
+msgstr "انتهت مهلة طلب الموقع."
+
+#: frontend (mobile app, logistics branch)
+msgid "Log Type: {0}"
+msgstr "نوع السجل: {0}"
+
+#: frontend (mobile app, logistics branch)
+msgid "Missing Information"
+msgstr "معلومات ناقصة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Move closer to the destination. You are {0} meters away."
+msgstr "اقترب من الوجهة. أنت على بعد {0} متر."
+
+#: frontend (mobile app, logistics branch)
+msgid "New passwords do not match"
+msgstr "كلمتا المرور الجديدتان غير متطابقتين"
+
+#: frontend (mobile app, logistics branch)
+msgid "No login methods are available. Please contact your administrator."
+msgstr "لا توجد طرق تسجيل دخول متاحة. يرجى التواصل مع المسؤول."
+
+#: frontend (mobile app, logistics branch)
+msgid "No trips found"
+msgstr "لا توجد رحلات"
+
+#: frontend (mobile app, logistics branch)
+msgid "No trips scheduled for today"
+msgstr "لا توجد رحلات مجدولة لليوم"
+
+#: frontend (mobile app, logistics branch)
+msgid "Not permitted to update this Delivery Trip"
+msgstr "غير مسموح بتحديث رحلة التسليم هذه"
+
+#: frontend (mobile app, logistics branch)
+msgid "OK"
+msgstr "حسنًا"
+
+#: frontend (mobile app, logistics branch)
+msgid "Password reset link has been sent to your email."
+msgstr "تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني."
+
+#: frontend (mobile app, logistics branch)
+msgid "Please describe what happened before confirming."
+msgstr "يرجى وصف ما حدث قبل التأكيد."
+
+#: frontend (mobile app, logistics branch)
+msgid "Please enter a valid email address"
+msgstr "يرجى إدخال بريد إلكتروني صالح"
+
+#: frontend (mobile app, logistics branch)
+msgid "Please enter your email address"
+msgstr "يرجى إدخال بريدك الإلكتروني"
+
+#: frontend (mobile app, logistics branch)
+msgid "Please fill all fields"
+msgstr "يرجى ملء جميع الحقول"
+
+#: frontend (mobile app, logistics branch)
+msgid "Please log in to change the language"
+msgstr "يرجى تسجيل الدخول لتغيير اللغة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Rate: {0}"
+msgstr "النسبة: {0}"
+
+#: frontend (mobile app, logistics branch)
+msgid "Reason Required"
+msgstr "السبب مطلوب"
+
+#: frontend (mobile app, logistics branch)
+msgid "Reason for Stop"
+msgstr "سبب التوقف"
+
+#: frontend (mobile app, logistics branch)
+msgid "Rejected successfully!"
+msgstr "تم الرفض بنجاح!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Rejection failed!"
+msgstr "فشلت عملية الرفض!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Returned"
+msgstr "مرتجعة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Route Fee"
+msgstr "رسوم الطريق"
+
+#: frontend (mobile app, logistics branch)
+msgid "Send Reset Link"
+msgstr "إرسال رابط إعادة التعيين"
+
+#: frontend (mobile app, logistics branch)
+msgid "Shift Dates"
+msgstr "تواريخ الوردية"
+
+#: frontend (mobile app, logistics branch)
+msgid "Shift Timing"
+msgstr "مواعيد الوردية"
+
+#: frontend (mobile app, logistics branch)
+msgid "Stop reason recorded."
+msgstr "تم تسجيل سبب التوقف."
+
+#: frontend (mobile app, logistics branch)
+msgid "Tap"
+msgstr "اضغط على"
+
+#: frontend (mobile app, logistics branch)
+msgid "This trip has no configured GPS location."
+msgstr "لم يتم تحديد موقع GPS لهذه الرحلة."
+
+#: frontend (mobile app, logistics branch)
+msgid "Today's Trips"
+msgstr "رحلات اليوم"
+
+#: frontend (mobile app, logistics branch)
+msgid "Total Attendance Days"
+msgstr "إجمالي أيام الحضور"
+
+#: frontend (mobile app, logistics branch)
+msgid "Total Shift Days"
+msgstr "إجمالي أيام الوردية"
+
+#: frontend (mobile app, logistics branch)
+msgid "Total Taxes and Charges"
+msgstr "إجمالي الضرائب والرسوم"
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip Location Missing"
+msgstr "موقع الرحلة مفقود"
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip Stopped"
+msgstr "تم إيقاف الرحلة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip Tracking"
+msgstr "تتبع الرحلة"
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip completed successfully!"
+msgstr "تم إكمال الرحلة بنجاح!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip marked as delivered!"
+msgstr "تم تسجيل الرحلة كمُسلَّمة!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip started successfully!"
+msgstr "تم بدء الرحلة بنجاح!"
+
+#: frontend (mobile app, logistics branch)
+msgid "Unable to get your location."
+msgstr "تعذر الحصول على موقعك."
+
+#: frontend (mobile app, logistics branch)
+msgid "Unable to read the trip coordinates."
+msgstr "تعذر قراءة إحداثيات الرحلة."
+
+#: frontend (mobile app, logistics branch)
+msgid "Unsupported language: {0}"
+msgstr "لغة غير مدعومة: {0}"
+
+#: frontend (mobile app, logistics branch)
+msgid "View Details"
+msgstr "عرض التفاصيل"
+
+#: frontend (mobile app, logistics branch)
+msgid "Workflow action '{0}' applied successfully"
+msgstr "تم تطبيق إجراء سير العمل '{0}' بنجاح"
+
+#: frontend (mobile app, logistics branch)
+msgid "Wrong Location"
+msgstr "موقع خاطئ"
+
+#: frontend (mobile app, logistics branch)
+msgid "You are at the correct location."
+msgstr "أنت في الموقع الصحيح."
+
+#: frontend (mobile app, logistics branch)
+msgid "Your password has been updated."
+msgstr "تم تحديث كلمة المرور الخاصة بك."
+
+#: frontend (mobile app, logistics branch)
+msgid "and then \"Add to Home Screen\""
+msgstr "ثم اختر \"إضافة إلى الشاشة الرئيسية\""
+
+#: frontend (mobile app, logistics branch)
+msgid "{0} on {1}"
+msgstr "{0} في {1}"
+
+#: frontend (mobile app, logistics branch)
+msgid "{0} yesterday"
+msgstr "{0} أمس"
+
+#: frontend (mobile app, logistics branch)
+msgid "Shift"
+msgstr "الوردية"
+
+#: frontend (mobile app, logistics branch)
+msgid "Stop Reason"
+msgstr "سبب التوقف"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Scheduled"
+msgstr "مجدولة"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "In Transit"
+msgstr "في الطريق"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Delivered"
+msgstr "تم التسليم"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Stopped"
+msgstr "متوقفة"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Completed"
+msgstr "مكتملة"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Cancelled"
+msgstr "ملغاة"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Draft"
+msgstr "مسودة"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Start"
+msgstr "بدء"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Stop"
+msgstr "إيقاف"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "End"
+msgstr "إنهاء"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Employee Checkin"
+msgid "IN"
+msgstr "دخول"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Employee Checkin"
+msgid "OUT"
+msgstr "خروج"
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Action Sheet"
+msgid "Dismiss"
+msgstr "إغلاق"
+
+#: frontend (mobile app, logistics branch)
+msgid "{0} balance"
+msgstr "رصيد {0}"

@@ -12,7 +12,7 @@
 				<div class="flex flex-row items-center gap-1.5">
 					<FeatherIcon :name="stat.icon" class="h-3.5 w-3.5" :class="stat.iconClass" />
 					<span class="text-[var(--color-text-muted)] text-sm font-medium leading-5">
-						{{ __(stat.status) }}
+						{{ __(stat.status, null, "Delivery Trip") }}
 					</span>
 				</div>
 				<span class="text-[var(--color-primary)] text-xl font-bold leading-6">

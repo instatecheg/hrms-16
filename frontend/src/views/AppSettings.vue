@@ -9,7 +9,7 @@
 						<div class="flex flex-row items-center">
 							<Button
 								variant="ghost"
-								class="!pl-0 hover:bg-white"
+								class="!ps-0 hover:bg-white"
 								@click="router.back()"
 							>
 								<FeatherIcon name="chevron-left" class="h-5 w-5" />
@@ -45,6 +45,33 @@
 						</div>
 
 						<div class="flex flex-col bg-white rounded">
+							<div class="flex flex-row items-center justify-between gap-3 p-4">
+								<div class="flex flex-row items-center gap-3 grow">
+									<FeatherIcon name="globe" class="h-5 w-5 text-gray-500" />
+									<label for="app-language" class="text-base font-normal text-gray-800">
+										{{ __("Language") }}
+									</label>
+								</div>
+								<Select
+									id="app-language"
+									class="w-36"
+									size="md"
+									:options="languageOptions"
+									:model-value="currentLanguage"
+									:disabled="isChangingLanguage"
+									@update:model-value="onLanguageChange"
+								/>
+							</div>
+							<div
+								v-if="isChangingLanguage"
+								class="flex items-center justify-center gap-2 pb-4"
+							>
+								<LoadingIndicator class="w-3 h-3 text-gray-800" />
+								<span class="text-gray-900 text-sm">{{ __("Changing language...") }}</span>
+							</div>
+						</div>
+
+						<div class="flex flex-col bg-white rounded">
 							<Switch
 								size="md"
 								:label="__('Enable Push Notifications')"
@@ -75,11 +102,12 @@
 <script setup>
 import { IonPage, IonContent } from "@ionic/vue"
 import { useRouter } from "vue-router"
-import { FeatherIcon, Switch, toast, LoadingIndicator, Button } from "frappe-ui"
+import { FeatherIcon, Switch, Select, toast, LoadingIndicator, Button } from "frappe-ui"
 
 import { computed, inject, ref } from "vue"
 
 import { arePushNotificationsEnabled } from "@/data/notifications"
+import { LANGUAGES, currentLanguage, changeLanguage } from "@/data/language"
 
 const __ = inject("$translate")
 const router = useRouter()
@@ -88,6 +116,33 @@ const pushNotificationState = ref(
 	window.frappePushNotification?.isNotificationEnabled()
 )
 const isLoading = ref(false)
+
+// Each language is shown in its own script (never translated), so people can
+// still find theirs if the UI is currently in a language they can't read
+const languageOptions = LANGUAGES.map((language) => ({
+	label: language.nativeLabel,
+	value: language.code,
+}))
+const isChangingLanguage = ref(false)
+
+const onLanguageChange = async (newLanguage) => {
+	if (!newLanguage || newLanguage === currentLanguage.value) return
+
+	isChangingLanguage.value = true
+	try {
+		// saves the preference and reloads the page, so on success this never returns
+		await changeLanguage(newLanguage)
+	} catch (error) {
+		isChangingLanguage.value = false
+		toast({
+			title: __("Error"),
+			text: error?.messages?.[0] || __("Failed to change language"),
+			icon: "alert-circle",
+			position: "bottom-center",
+			iconClasses: "text-red-500",
+		})
+	}
+}
 
 const disablePushSetting = computed(() => {
 	return (

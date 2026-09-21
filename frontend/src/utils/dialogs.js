@@ -1,11 +1,12 @@
 export const showErrorAlert = async (message) => {
 	const alert = await alertController.create({
-		header: "Error",
+		header: __("Error"),
 		message,
-		buttons: ["OK"],
+		buttons: [__("OK")],
 	})
 
 	await alert.present()
 }
 
 import { alertController } from "@ionic/vue"
+import { __ } from "@/plugins/translationsPlugin"

@@ -21,7 +21,7 @@
 					class="flex flex-row items-center justify-between w-full"
 				>
 					<div class="text-gray-600 text-base">{{ __(row.label) }}</div>
-					<div class="text-gray-800 text-base font-medium text-right">{{ row.value }}</div>
+					<div class="text-gray-800 text-base font-medium text-end">{{ row.value }}</div>
 				</div>
 
 				<div class="flex flex-row items-center justify-between w-full">
@@ -29,7 +29,7 @@
 					<span
 						class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-card-selected-bg)] text-[var(--color-primary)]"
 					>
-						{{ trip.status }}
+						{{ __(trip.status, null, "Delivery Trip") }}
 					</span>
 				</div>
 
@@ -93,7 +93,7 @@
 				<template #prefix>
 					<FeatherIcon name="play" class="w-4" />
 				</template>
-				{{ __("Start") }}
+				{{ __("Start", null, "Delivery Trip") }}
 			</Button>
 		</div>
 
@@ -110,7 +110,7 @@
 				<template #prefix>
 					<FeatherIcon name="flag" class="w-4" />
 				</template>
-				{{ __("Delivered") }}
+				{{ __("Delivered", null, "Delivery Trip") }}
 			</Button>
 			<Button
 				@click="showStopForm = true"
@@ -120,7 +120,7 @@
 				<template #prefix>
 					<FeatherIcon name="alert-triangle" class="w-4" />
 				</template>
-				{{ __("Stop") }}
+				{{ __("Stop", null, "Delivery Trip") }}
 			</Button>
 		</div>
 
@@ -163,7 +163,7 @@
 				<template #prefix>
 					<FeatherIcon name="check-circle" class="w-4" />
 				</template>
-				{{ __("End") }}
+				{{ __("End", null, "Delivery Trip") }}
 			</Button>
 		</div>
 	</div>
@@ -205,6 +205,8 @@ const isFileUploading = ref(false)
 // per request, so the distance-check logic stays intact for future use.
 const { locationStatus, fetchLocation, validateLocation } = useTripLocation()
 
+// labels are translated at render time via __(row.label); listed here so they get extracted:
+// __("Destination"), __("Location"), __("Departure Time"), __("Customer"), __("Vehicle"), __("Driver")
 const detailRows = computed(() => {
 	if (!trip.value) return []
 	return [

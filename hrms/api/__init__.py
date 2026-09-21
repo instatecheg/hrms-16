@@ -31,11 +31,49 @@ SUPPORTED_FIELD_TYPES = [
 def get_current_user_info() -> dict:
 	current_user = frappe.session.user
 	user = frappe.db.get_value(
-		"User", current_user, ["name", "first_name", "full_name", "user_image"], as_dict=True
+		"User", current_user, ["name", "first_name", "full_name", "user_image", "language"], as_dict=True
 	)
 	user["roles"] = frappe.get_roles(current_user)
 
 	return user
+
+
+# Languages the mobile app lets an employee switch between (see AppSettings.vue).
+# Keep in sync with `LANGUAGES` in frontend/src/data/language.js
+SUPPORTED_APP_LANGUAGES = ("en", "ar")
+
+
+@frappe.whitelist(methods=["POST"])
+def set_user_language(language: str) -> str:
+	"""Persist the UI language of the *logged in* user.
+
+	Frappe derives `frappe.local.lang` (server side messages, emails, boot
+	translations served to the PWA) from `User.language`, so saving it here
+	switches the whole app - not just the frontend - on the next page load.
+
+	This intentionally bypasses doctype permissions: every employee may change
+	their own language, but nobody can change anyone else's, and only the
+	languages listed in SUPPORTED_APP_LANGUAGES are accepted.
+	"""
+	if frappe.session.user == "Guest":
+		frappe.throw(_("Please log in to change the language"), frappe.PermissionError)
+
+	if language not in SUPPORTED_APP_LANGUAGES:
+		frappe.throw(_("Unsupported language: {0}").format(language), frappe.ValidationError)
+
+	if not frappe.db.exists("Language", language):
+		frappe.throw(
+			_("Language {0} is not available on this site. Please contact your administrator.").format(
+				language
+			)
+		)
+
+	# `set_value` also clears the cached User document that
+	# `frappe.translate.get_user_lang` reads from
+	frappe.db.set_value("User", frappe.session.user, "language", language, update_modified=False)
+	frappe.clear_cache(user=frappe.session.user)
+
+	return language
 
 
 @frappe.whitelist()

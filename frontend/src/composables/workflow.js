@@ -1,6 +1,7 @@
 import { createResource, toast } from "frappe-ui"
 import { computed } from "vue"
 import { userResource } from "@/data/user"
+import { __ } from "@/plugins/translationsPlugin"
 
 export default function useWorkflow(doctype) {
 	const workflowDoc = createResource({
@@ -68,8 +69,8 @@ export default function useWorkflow(doctype) {
 			params: { doc: doc, action: action },
 			onSuccess() {
 				toast({
-					title: "Success",
-					text: `Workflow action '${action}' applied successfully`,
+					title: __("Success"),
+					text: __("Workflow action '{0}' applied successfully", [__(action)]),
 					icon: "check-circle",
 					position: "bottom-center",
 					iconClasses: "text-green-500",
@@ -77,8 +78,8 @@ export default function useWorkflow(doctype) {
 			},
 			onError() {
 				toast({
-					title: "Error",
-					text: `Error applying workflow action: ${action}`,
+					title: __("Error"),
+					text: __("Error applying workflow action: {0}", [__(action)]),
 					icon: "alert-circle",
 					position: "bottom-center",
 					iconClasses: "text-red-500",

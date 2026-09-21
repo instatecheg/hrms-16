@@ -138,7 +138,7 @@
 		<DateTimePicker
 			v-else-if="props.fieldtype === 'Datetime'"
 			:value="modelValue"
-			:placeholder="`Select ${props.label}`"
+			:placeholder="__('Select {0}', [props.label])"
 			:formatter="(val) => dayjs(val).format('DD-MM-YYYY HH:mm:ss')"
 			@update:modelValue="(v) => emit('update:modelValue', v)"
 			v-bind="$attrs"

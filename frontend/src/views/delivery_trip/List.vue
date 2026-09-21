@@ -6,7 +6,7 @@
 					class="flex flex-row bg-[var(--color-surface)] shadow-sm py-4 px-3 items-center justify-between border-b"
 				>
 					<div class="flex flex-row items-center">
-						<Button variant="ghost" class="!px-1 mr-1 hover:bg-white" @click="router.back()">
+						<Button variant="ghost" class="!px-1 me-1 hover:bg-white" @click="router.back()">
 							<FeatherIcon name="chevron-left" class="h-5 w-5" />
 						</Button>
 						<h2 class="text-xl font-semibold text-[var(--color-primary)]">
@@ -33,7 +33,7 @@
 					>
 						<option value="">{{ __("All Statuses") }}</option>
 						<option v-for="status in activeGroupStatuses" :key="status" :value="status">
-							{{ __(status) }}
+							{{ __(status, null, "Delivery Trip") }}
 						</option>
 					</select>
 				</div>

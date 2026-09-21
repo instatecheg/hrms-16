@@ -12,7 +12,7 @@ input:disabled {
 
 /* For Webkit-based browsers (Chrome, Safari and Opera) */
 input::-webkit-date-and-time-value {
-	text-align: left;
+	text-align: start;
 }
 
 body {
@@ -27,4 +27,43 @@ body {
 .hide-scrollbar {
 	-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
+}
+
+/* ---------------------------------------------------------------------------
+ * Right-to-left (Arabic) support
+ * <html dir="rtl" lang="ar"> is set at startup from the user's language, see
+ * applyLanguageToDocument() in data/language.js. Flex/grid layouts and Ionic
+ * mirror automatically; the rules below cover what doesn't.
+ * ------------------------------------------------------------------------- */
+
+/* InterVar has no Arabic glyphs, so put a font that does in front of the fallbacks */
+html[lang="ar"] {
+	--app-font-arabic: system-ui, -apple-system, "Segoe UI", Tahoma, "Noto Sans Arabic",
+		"Noto Naskh Arabic", "Droid Arabic Kufi", sans-serif;
+	--ion-font-family: var(--app-font-arabic);
+}
+
+html[lang="ar"] body,
+html[lang="ar"] ion-app {
+	font-family: var(--app-font-arabic);
+}
+
+/* Directional icons must point the other way: "next" (>) becomes (<) and "back" (<) becomes (>) */
+[dir="rtl"] svg.feather-chevron-left,
+[dir="rtl"] svg.feather-chevron-right,
+[dir="rtl"] svg.feather-chevrons-left,
+[dir="rtl"] svg.feather-chevrons-right,
+[dir="rtl"] svg.feather-arrow-left,
+[dir="rtl"] svg.feather-arrow-right,
+[dir="rtl"] svg.feather-arrow-left-circle,
+[dir="rtl"] svg.feather-arrow-right-circle {
+	transform: scaleX(-1);
+}
+
+/* Values that are inherently left-to-right stay that way inside an RTL page, aligned to the reading start */
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] input[type="url"] {
+	direction: ltr;
+	text-align: end;
 }

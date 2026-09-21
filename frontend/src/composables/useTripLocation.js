@@ -1,6 +1,8 @@
 import { ref } from "vue"
 import { call, toast } from "frappe-ui"
 
+import { __ } from "@/plugins/translationsPlugin"
+
 // Reusable trip location/geofence check, extracted from the driver check-in logic.
 export function useTripLocation() {
 	const latitude = ref(null)
@@ -74,30 +76,32 @@ export function useTripLocation() {
 	function handleLocationSuccess(position) {
 		latitude.value = position.coords.latitude
 		longitude.value = position.coords.longitude
-		locationStatus.value = "Location detected successfully."
+		locationStatus.value = __("Location detected successfully.")
 	}
 
 	function handleLocationError(error) {
-		let message = "Unable to get your location."
+		let message
 
+		// GeolocationPositionError codes: 1 = permission denied, 2 = unavailable, 3 = timeout.
+		// Numeric on purpose: `error` is undefined when geolocation isn't supported at all.
 		switch (error?.code) {
-			case error.PERMISSION_DENIED:
-				message = "Location permission denied. Please enable location access."
+			case 1:
+				message = __("Location permission denied. Please enable location access.")
 				break
-			case error.POSITION_UNAVAILABLE:
-				message = "Location information is unavailable."
+			case 2:
+				message = __("Location information is unavailable.")
 				break
-			case error.TIMEOUT:
-				message = "Location request timed out."
+			case 3:
+				message = __("Location request timed out.")
 				break
 			default:
-				message = "Unknown location error."
+				message = __("Unable to get your location.")
 		}
 
 		locationStatus.value = message
 
 		toast({
-			title: "Location Error",
+			title: __("Location Error"),
 			text: message,
 			icon: "alert-circle",
 			position: "bottom-center",
@@ -133,8 +137,8 @@ export function useTripLocation() {
 	async function validateLocation(mapUrl, allowedDistance = 100) {
 		if (!mapUrl) {
 			toast({
-				title: "Trip Location Missing",
-				text: "This trip has no configured GPS location.",
+				title: __("Trip Location Missing"),
+				text: __("This trip has no configured GPS location."),
 				icon: "alert-circle",
 				position: "bottom-center",
 			})
@@ -152,8 +156,8 @@ export function useTripLocation() {
 
 			if (!destination) {
 				toast({
-					title: "Invalid Map URL",
-					text: "Unable to read the trip coordinates.",
+					title: __("Invalid Map URL"),
+					text: __("Unable to read the trip coordinates."),
 					icon: "alert-circle",
 					position: "bottom-center",
 				})
@@ -169,8 +173,10 @@ export function useTripLocation() {
 
 			if (distance > allowedDistance) {
 				toast({
-					title: "Wrong Location",
-					text: `Move closer to the destination. You are ${Math.round(distance)} meters away.`,
+					title: __("Wrong Location"),
+					text: __("Move closer to the destination. You are {0} meters away.", [
+						Math.round(distance),
+					]),
 					icon: "alert-circle",
 					position: "bottom-center",
 				})
@@ -178,8 +184,8 @@ export function useTripLocation() {
 			}
 
 			toast({
-				title: "Location Verified",
-				text: "You are at the correct location.",
+				title: __("Location Verified"),
+				text: __("You are at the correct location."),
 				position: "bottom-center",
 			})
 			return true

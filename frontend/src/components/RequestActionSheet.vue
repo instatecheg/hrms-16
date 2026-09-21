@@ -283,22 +283,20 @@ const approvalField = computed(() => {
 		: "status"
 })
 
+// Whole sentences rather than "{0} successfully!" + a translated word: word order and
+// gender agreement differ between languages (Arabic especially), so they can't be glued together.
 const getSuccessMessage = ({ status = "", docstatus = 0 }) => {
-	if (status) {
-		return __("{0} successfully!", [__(status)])
-	} else if (docstatus) {
-		return __("Document {0} successfully!", [
-			docstatus === 1 ? __("submitted") : __("cancelled")]
-		)
-	}
+	if (status === "Approved") return __("Approved successfully!")
+	if (status === "Rejected") return __("Rejected successfully!")
+	if (status) return __("{0} successfully!", [__(status)])
+	if (docstatus === 1) return __("Document submitted successfully!")
+	if (docstatus) return __("Document cancelled successfully!")
 }
 
 const getFailureMessage = ({ status = "", docstatus = 0 }) => {
-	if (status) {
-		return __("{0} failed!", [status === __("Approved") ? __("Approval") : __("Rejection")])
-	} else if (docstatus) {
-		return __('Document {0} failed!', [docstatus === 1 ? __("submission") : __("cancellation")])
-	}
+	if (status) return status === "Approved" ? __("Approval failed!") : __("Rejection failed!")
+	if (docstatus === 1) return __("Document submission failed!")
+	if (docstatus) return __("Document cancellation failed!")
 }
 
 const updateDocumentStatus = ({ status = "", docstatus = 0 }) => {

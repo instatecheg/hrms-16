@@ -1,6 +1,7 @@
 import { createDocumentResource } from "frappe-ui"
 
 import dayjs from "@/utils/dayjs"
+import { __ } from "@/plugins/translationsPlugin"
 
 const settings = createDocumentResource({
 	doctype: "System Settings",
@@ -36,9 +37,9 @@ export const formatTimestamp = (timestamp) => {
 	const formattedTime = dayjs(timestamp).format("hh:mm a")
 
 	if (dayjs(timestamp).isToday()) return formattedTime
-	else if (dayjs(timestamp).isYesterday()) return `${formattedTime} yesterday`
+	else if (dayjs(timestamp).isYesterday()) return __("{0} yesterday", [formattedTime])
 	else if (dayjs(timestamp).isSame(dayjs(), "year"))
-		return `${formattedTime} on ${dayjs(timestamp).format("D MMM")}`
+		return __("{0} on {1}", [formattedTime, dayjs(timestamp).format("D MMM")])
 
-	return `${formattedTime} on ${dayjs(timestamp).format("D MMM, YYYY")}`
+	return __("{0} on {1}", [formattedTime, dayjs(timestamp).format("D MMM, YYYY")])
 }

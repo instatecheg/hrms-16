@@ -1,11 +1,16 @@
+import { initLanguage, getBootLanguage } from "@/data/language"
+import { setDayjsLocale } from "@/utils/dayjs"
+
 function makeTranslationFunction() {
 	let messages = {};
 	return {
 		translate,
-		load: () => Promise.allSettled([
-			setup(),
-			// TODO: load dayjs locales
-		]),
+		load: () => {
+			// set <html lang/dir> first so the very first paint is already mirrored for RTL
+			const lang = initLanguage()
+			setDayjsLocale(lang)
+			return Promise.allSettled([setup()])
+		},
 	}
 
 	async function setup() {
@@ -14,8 +19,11 @@ function makeTranslationFunction() {
 			return;
 		}
 
+		// English is the source language, there is nothing to load
+		if (window.frappe?.boot?.lang === "en") return;
+
 		const url = new URL("/api/method/frappe.translate.load_all_translations", location.origin);
-		url.searchParams.append("lang", window.frappe?.boot?.lang ?? navigator.language);
+		url.searchParams.append("lang", getBootLanguage());
 		url.searchParams.append("hash", window.frappe?.boot?.translations_hash || window._version_number || Math.random()); // for cache busting
 		// url.searchParams.append("app", "hrms");
 
@@ -65,6 +73,17 @@ function makeTranslationFunction() {
 }
 
 const { translate, load } = makeTranslationFunction();
+
+/**
+ * Standalone translation function for code that runs outside a component
+ * (composables, utils, config files), where `inject("$translate")` isn't available.
+ *
+ * Always call it lazily (inside a function), never at module top-level: the
+ * translations are only loaded once the app boots.
+ *
+ *     import { __ } from "@/plugins/translationsPlugin"
+ */
+export const __ = translate;
 
 export const translationsPlugin = {
 	async isReady() {

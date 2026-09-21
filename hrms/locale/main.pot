@@ -11900,3 +11900,427 @@ msgstr ""
 msgid "{} {} open for this position."
 msgstr ""
 
+#: frontend (mobile app, logistics branch)
+msgid "All Statuses"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Amount: {0}"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Approved & Draft"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Approved & Submitted"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Approved & Unpaid"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Approval failed!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Approved successfully!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Arrival Location Latitude"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Arrival Location Longitude"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Attendance Dates"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Back to Login"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Changing language..."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "check-in"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "check-out"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Confirm Stop"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Customer Scale"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Customer scale and delivery proof are both required."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Delivery Proof"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Delivery Trips"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Delivery Trips Summary"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Departure Location Latitude"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Departure Location Longitude"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Describe what happened..."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Destination"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Destination Location"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Document cancellation failed!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Document cancelled successfully!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Document submission failed!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Document submitted successfully!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Download Failed"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Enter weight"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Error applying workflow action: {0}"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Failed to change language"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "File deletion failed. {0}"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "File upload failed for {0}. {1}"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "History"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Invalid Map URL"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Language {0} is not available on this site. Please contact your administrator."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Leave Dates"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Location Error"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Location Verified"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Location detected successfully."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Location information is unavailable."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Location permission denied. Please enable location access."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Location request timed out."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Log Type: {0}"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Missing Information"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Move closer to the destination. You are {0} meters away."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "No trips found"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "No trips scheduled for today"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Not permitted to update this Delivery Trip"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "OK"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Please describe what happened before confirming."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Please log in to change the language"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Rate: {0}"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Reason Required"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Reason for Stop"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Rejected successfully!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Rejection failed!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Returned"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Route Fee"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Shift Dates"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Shift Timing"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Stop reason recorded."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Tap"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "This trip has no configured GPS location."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Today's Trips"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Total Attendance Days"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Total Shift Days"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Total Taxes and Charges"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip Location Missing"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip Stopped"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip Tracking"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip completed successfully!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip marked as delivered!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Trip started successfully!"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Unable to get your location."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Unable to read the trip coordinates."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Unsupported language: {0}"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Uploading..."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "View Details"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Workflow action '{0}' applied successfully"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Wrong Location"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "You are at the correct location."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "and then \"Add to Home Screen\""
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "{0} on {1}"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "{0} yesterday"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Shift"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Stop Reason"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Scheduled"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "In Transit"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Delivered"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Stopped"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Completed"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Cancelled"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Draft"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Start"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "Stop"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Delivery Trip"
+msgid "End"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Employee Checkin"
+msgid "IN"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Employee Checkin"
+msgid "OUT"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgctxt "Action Sheet"
+msgid "Dismiss"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "{0} balance"
+msgstr ""

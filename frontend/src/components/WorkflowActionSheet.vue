@@ -108,7 +108,7 @@ const showTransitions = () => {
 	if (actions.value?.length > 0) {
 		// always add last action for dismissing the modal
 		actions.value.push({
-			text: __("Dismiss"),
+			text: __("Dismiss", null, "Action Sheet"),
 			role: "cancel",
 		})
 	}

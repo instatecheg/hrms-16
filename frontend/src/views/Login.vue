@@ -74,7 +74,7 @@
 					</form>
 
 					<template v-if="authProviders.data?.length">
-						<div v-if="!user_pass_login_disabled.data" class="text-center text-sm text-gray-600 my-4">or</div>
+						<div v-if="!user_pass_login_disabled.data" class="text-center text-sm text-gray-600 my-4">{{ __("or") }}</div>
 						<div class="space-y-4">
 							<a
 								v-for="provider in authProviders.data"
@@ -83,7 +83,7 @@
 								:href="provider.auth_url"
 							>
 								<img class="h-4 w-4" :src="provider.icon" :alt="provider.provider_name" />
-								<span>Login with {{ provider.provider_name }}</span>
+								<span>{{ __("Login with {0}", [provider.provider_name]) }}</span>
 							</a>
 						</div>
 					</template>
