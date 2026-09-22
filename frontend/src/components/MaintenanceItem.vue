@@ -19,6 +19,7 @@
 				:theme="statusMap[props.doc.status] || 'gray'"
 				:label="__(props.doc.status, null, 'Truck Maintenance Log')"
 				size="md"
+				class="whitespace-nowrap shrink-0"
 			/>
 			<FeatherIcon name="chevron-right" class="h-5 w-5 text-gray-500" />
 		</template>

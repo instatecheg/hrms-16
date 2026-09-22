@@ -14,16 +14,31 @@
 						</h2>
 					</div>
 
-					<Button
-						icon="filter"
-						variant="subtle"
-						:class="[
-							statusFilter
-								? '!border !border-[var(--color-primary)] !bg-[var(--color-card-bg)] !text-[var(--color-primary)] !font-semibold'
-								: '',
-						]"
-						@click="showFilters = !showFilters"
-					/>
+					<div class="flex flex-row items-center gap-2">
+						<router-link :to="{ name: 'MaintenanceFormPage' }" v-slot="{ navigate }">
+							<Button
+								variant="solid"
+								class="!bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
+								@click="navigate"
+							>
+								<template #prefix>
+									<FeatherIcon name="plus" class="w-4" />
+								</template>
+								{{ __("New") }}
+							</Button>
+						</router-link>
+
+						<Button
+							icon="filter"
+							variant="subtle"
+							:class="[
+								statusFilter
+									? '!border !border-[var(--color-primary)] !bg-[var(--color-card-bg)] !text-[var(--color-primary)] !font-semibold'
+									: '',
+							]"
+							@click="showFilters = !showFilters"
+						/>
+					</div>
 				</div>
 
 				<div v-if="showFilters" class="flex flex-row gap-2 p-3 border-b bg-[var(--color-surface)]">
@@ -50,7 +65,7 @@
 						v-if="!loading && filteredLogs.length"
 					>
 						<div
-							class="p-3.5 items-center justify-between border-b cursor-pointer"
+							class="flex flex-row p-3.5 items-center justify-between border-b cursor-pointer"
 							v-for="log in filteredLogs"
 							:key="log.name"
 							@click="openLog(log)"
@@ -72,12 +87,11 @@
 <script setup>
 import { ref, computed, watch, inject, onMounted } from "vue"
 import { useRouter } from "vue-router"
-import { IonPage, IonHeader, IonContent, modalController } from "@ionic/vue"
+import { IonPage, IonHeader, IonContent } from "@ionic/vue"
 import { FeatherIcon, LoadingIndicator } from "frappe-ui"
 
 import TabButtons from "@/components/TabButtons.vue"
 import MaintenanceItem from "@/components/MaintenanceItem.vue"
-import MaintenanceActionSheet from "@/components/MaintenanceActionSheet.vue"
 import EmptyState from "@/components/EmptyState.vue"
 
 import { fetchMaintenanceByStatusGroup, STATUS_GROUPS } from "@/data/maintenanceLogs"
@@ -93,14 +107,8 @@ const statusFilter = ref("")
 const logs = ref([])
 const loading = ref(true)
 
-async function openLog(log) {
-	const modal = await modalController.create({
-		component: MaintenanceActionSheet,
-		componentProps: { modelValue: log },
-		initialBreakpoint: 1,
-		breakpoints: [0, 1],
-	})
-	await modal.present()
+function openLog(log) {
+	router.push({ name: "MaintenanceDetailPage", params: { id: log.name } })
 }
 
 const activeGroupKey = computed(() => (activeTab.value === "Active" ? "active" : "history"))
