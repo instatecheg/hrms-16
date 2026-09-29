@@ -54,7 +54,7 @@ const quickLinks = [
 	{
 		icon: markRaw(MaintenanceIcon),
 		title: __("Maintenance"),
-		route: "MaintenanceDashboard",
+		route: "MaintenanceListPage",
 	},
 ]
 </script>

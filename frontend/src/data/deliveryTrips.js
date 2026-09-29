@@ -2,11 +2,12 @@ import { reactive } from "vue"
 import { call } from "frappe-ui"
 
 const STATUS_GROUPS = {
-	active: ["Scheduled", "In Transit", "Delivered", "Stopped"],
+	active: ["Draft","Scheduled", "In Transit", "Delivered", "Stopped"],
 	history: ["Completed", "Cancelled"],
 }
 
 const ALL_STATUSES = [
+	"Draft",
 	"Scheduled",
 	"In Transit",
 	"Delivered",
@@ -66,7 +67,7 @@ async function fetchTripsForDriver(extraFilters = {}) {
 	const data = await call("frappe.client.get_list", {
 		doctype: "Delivery Trip",
 		fields: TRIP_LIST_FIELDS,
-		filters: { driver, docstatus: ["!=", 0], ...extraFilters },
+		filters: { driver, ...extraFilters },
 		order_by: "departure_time asc",
 	})
 
@@ -80,7 +81,7 @@ async function fetchAllTrips(extraFilters = {}) {
 	const data = await call("frappe.client.get_list", {
 		doctype: "Delivery Trip",
 		fields: TRIP_LIST_FIELDS,
-		filters: { docstatus: ["!=", 0], ...extraFilters },
+		filters: {...extraFilters },
 		order_by: "departure_time asc",
 		limit_page_length: 10,
 	})

@@ -52,11 +52,6 @@ const routes = [
 				name: "DeliveryTripDashboard",
 				component: () => import("@/views/delivery_trip/Dashboard.vue"),
 			},
-			{
-				path: "/dashboard/maintenance",
-				name: "MaintenanceDashboard",
-				component: () => import("@/views/maintenance/Dashboard.vue"),
-			},
 		],
 	},
 	{

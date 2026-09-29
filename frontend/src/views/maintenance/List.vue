@@ -15,27 +15,15 @@
 					</div>
 
 					<Button
-						icon="filter"
-						variant="subtle"
-						:class="[
-							statusFilter
-								? '!border !border-[var(--color-primary)] !bg-[var(--color-card-bg)] !text-[var(--color-primary)] !font-semibold'
-								: '',
-						]"
-						@click="showFilters = !showFilters"
-					/>
-				</div>
-
-				<div v-if="showFilters" class="flex flex-row gap-2 p-3 border-b bg-[var(--color-surface)]">
-					<select
-						v-model="statusFilter"
-						class="w-full rounded border border-[var(--color-card-border)] text-sm py-2 px-2 text-gray-700"
+						variant="solid"
+						class="!bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
+						@click="openCreate"
 					>
-						<option value="">{{ __("All Statuses") }}</option>
-						<option v-for="status in activeGroupStatuses" :key="status" :value="status">
-							{{ __(status) }}
-						</option>
-					</select>
+						<template #prefix>
+							<FeatherIcon name="plus" class="w-4" />
+						</template>
+						{{ __("New") }}
+					</Button>
 				</div>
 			</div>
 		</ion-header>
@@ -43,16 +31,15 @@
 		<ion-content>
 			<div class="flex flex-col items-center mb-7 p-4 h-full w-full sm:w-96 overflow-y-auto">
 				<div class="w-full">
-					<TabButtons :buttons="TAB_BUTTONS" v-model="activeTab" />
-
 					<div
-						class="flex flex-col bg-[var(--color-surface)] rounded mt-5"
-						v-if="!loading && filteredLogs.length"
+						class="flex flex-col bg-[var(--color-surface)] rounded"
+						v-if="!loading && logs.length"
 					>
 						<div
-							class="p-3.5 items-center justify-between border-b"
-							v-for="log in filteredLogs"
+							class="flex flex-row p-3.5 items-center justify-between border-b cursor-pointer"
+							v-for="log in logs"
 							:key="log.name"
+							@click="openEdit(log)"
 						>
 							<MaintenanceItem :doc="log" />
 						</div>
@@ -65,53 +52,55 @@
 				</div>
 			</div>
 		</ion-content>
+
+		<MaintenanceEditSheet v-model="selectedLog" @close="closeSheet" @saved="onSaved" />
 	</ion-page>
 </template>
 
 <script setup>
-import { ref, computed, watch, inject, onMounted } from "vue"
+import { ref, inject, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { IonPage, IonHeader, IonContent } from "@ionic/vue"
 import { FeatherIcon, LoadingIndicator } from "frappe-ui"
 
-import TabButtons from "@/components/TabButtons.vue"
 import MaintenanceItem from "@/components/MaintenanceItem.vue"
+import MaintenanceEditSheet from "@/components/MaintenanceEditSheet.vue"
 import EmptyState from "@/components/EmptyState.vue"
 
-import { fetchMaintenanceByStatusGroup, STATUS_GROUPS } from "@/data/maintenanceLogs"
+import { fetchAllDriverLogs } from "@/data/maintenanceLogs"
 
 const __ = inject("$translate")
 const router = useRouter()
 
-const TAB_BUTTONS = ["Active", "History"] // __("Active"), __("History")
-const activeTab = ref(TAB_BUTTONS[0])
-const showFilters = ref(false)
-const statusFilter = ref("")
-
 const logs = ref([])
 const loading = ref(true)
+const selectedLog = ref(null)
 
-const activeGroupKey = computed(() => (activeTab.value === "Active" ? "active" : "history"))
-const activeGroupStatuses = computed(() => STATUS_GROUPS[activeGroupKey.value])
+function openEdit(log) {
+	selectedLog.value = log
+}
 
-const filteredLogs = computed(() => {
-	if (!statusFilter.value) return logs.value
-	return logs.value.filter((log) => log.status === statusFilter.value)
-})
+function openCreate() {
+	selectedLog.value = {}
+}
+
+function closeSheet() {
+	selectedLog.value = null
+}
+
+function onSaved() {
+	closeSheet()
+	loadLogs()
+}
 
 async function loadLogs() {
 	loading.value = true
 	try {
-		logs.value = await fetchMaintenanceByStatusGroup(activeGroupKey.value)
+		logs.value = await fetchAllDriverLogs()
 	} finally {
 		loading.value = false
 	}
 }
-
-watch(activeTab, () => {
-	statusFilter.value = ""
-	loadLogs()
-})
 
 onMounted(loadLogs)
 </script>

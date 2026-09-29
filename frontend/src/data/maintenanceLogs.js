@@ -1,12 +1,10 @@
 import { call } from "frappe-ui"
 
-const STATUS_GROUPS = {
-	active: ["Draft", "Parts Issued"],
-	history: ["Completed", "Cancelled"],
-}
-
-const ALL_STATUSES = ["Draft", "Parts Issued", "Completed", "Cancelled"]
-
+// `notes` must be in this list: the edit popup pre-fills from the list row,
+// so without it saving an existing log would blank out its notes.
+// NOTE: `parts` (the line-items child table) is NOT fetchable via get_list —
+// Frappe's list API only returns flat fields. The edit popup fetches the full
+// document separately (getMaintenanceLog) whenever it needs parts.
 const LOG_LIST_FIELDS = [
 	"name",
 	"maintenance_date",
@@ -15,21 +13,13 @@ const LOG_LIST_FIELDS = [
 	"maintenance_type",
 	"service_provider_type",
 	"supplier",
+	"notes",
 	"status",
-	"total_parts_qty",
 ]
-
-function transformLogData(data) {
-	return data.map((log) => {
-		log.doctype = "Truck Maintenance Log"
-		return log
-	})
-}
 
 // Resolve the vehicle(s) currently assigned to the logged-in driver, via
 // Driver.user -> Fleet Driver Assignment.driver -> Fleet Driver Assignment.vehicle
-// (only "Active" assignments count). Cached per session since it won't
-// change mid-session in normal use.
+// (only "Active" assignments count). Cached per session.
 let vehiclesPromise = null
 
 async function getAssignedVehicles() {
@@ -63,51 +53,34 @@ async function getAssignedVehicles() {
 	return vehiclesPromise
 }
 
-async function fetchLogs(extraFilters = {}, limit = 0) {
+// Flat list for the driver's assigned vehicle(s). No docstatus filter on
+// purpose: drivers create logs as Drafts (docstatus 0), and those must show up
+// in the list or a freshly saved log would look like it vanished.
+export async function fetchAllDriverLogs() {
 	const vehicles = await getAssignedVehicles()
 	if (!vehicles.length) return []
 
-	const data = await call("frappe.client.get_list", {
+	return call("frappe.client.get_list", {
 		doctype: "Truck Maintenance Log",
 		fields: LOG_LIST_FIELDS,
-		filters: {
-			docstatus: ["!=", 0],
-			vehicle: ["in", vehicles],
-			...extraFilters,
-		},
-		order_by: "maintenance_date desc",
-		...(limit ? { limit_page_length: limit } : {}),
-	})
-
-	return transformLogData(data)
-}
-
-export async function fetchMaintenanceSummary() {
-	const logs = await fetchLogs()
-
-	const summary = { Draft: 0, "Parts Issued": 0, Completed: 0, Cancelled: 0 }
-	logs.forEach((log) => {
-		if (summary[log.status] !== undefined) summary[log.status] += 1
-	})
-
-	return summary
-}
-
-export async function fetchRecentMaintenance(limit = 5) {
-	return fetchLogs({}, limit)
-}
-
-export async function fetchMaintenanceByStatusGroup(group) {
-	return fetchLogs({
-		status: ["in", STATUS_GROUPS[group] || ALL_STATUSES],
+		filters: { vehicle: ["in", vehicles] },
+		order_by: "maintenance_date desc, creation desc",
 	})
 }
 
-// Exposed for the "new log" form — the vehicle(s) the driver is allowed to
-// log maintenance against. Returns the primary assignment's vehicle first,
-// if there is one.
+// The vehicle(s) the driver may log maintenance against (first one is used
+// to pre-fill the popup).
 export async function getDriverVehicles() {
 	return getAssignedVehicles()
+}
+
+// Full document, including the parts child table — needed whenever the edit
+// popup opens an existing log, since the list fetch above can't carry parts.
+export async function getMaintenanceLog(name) {
+	return call("frappe.client.get", {
+		doctype: "Truck Maintenance Log",
+		name,
+	})
 }
 
 export async function createMaintenanceLog(payload) {
@@ -119,4 +92,18 @@ export async function createMaintenanceLog(payload) {
 	})
 }
 
-export { STATUS_GROUPS, ALL_STATUSES }
+// Uses fetch -> merge -> save rather than frappe.client.set_value, because
+// set_value only reliably updates plain fields — it doesn't handle replacing
+// a child table (parts) the way a full doc save does.
+export async function updateMaintenanceLog(name, payload) {
+	const doc = await getMaintenanceLog(name)
+	Object.assign(doc, payload)
+	return call("frappe.client.save", { doc })
+}
+
+export async function deleteMaintenanceLog(name) {
+	return call("frappe.client.delete", {
+		doctype: "Truck Maintenance Log",
+		name,
+	})
+}

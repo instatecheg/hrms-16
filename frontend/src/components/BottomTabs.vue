@@ -1,7 +1,3 @@
-
-
-
-Bottomtabs · VUE
 <template>
 	<ion-tab-bar
 		slot="bottom"
@@ -24,23 +20,23 @@ Bottomtabs · VUE
 		</ion-tab-button>
 	</ion-tab-bar>
 </template>
- 
+
 <script setup>
 import { useRoute } from "vue-router"
- 
+
 import { IonTabBar, IonTabButton, IonLabel } from "@ionic/vue"
- 
+
 import HomeIcon from "@/components/icons/HomeIcon.vue"
 import ExpenseIcon from "@/components/icons/ExpenseIcon.vue"
 import DeliveryTripIcon from "@/components/icons/DeliveryTripIcon.vue"
 import MaintenanceIcon from "@/components/icons/MaintenanceIcon.vue"
- 
+
 import { inject } from "vue"
- 
+
 const __ = inject("$translate")
- 
+
 const route = useRoute()
- 
+
 const tabItems = [
 	{
 		icon: HomeIcon,
@@ -60,8 +56,7 @@ const tabItems = [
 	{
 		icon: MaintenanceIcon,
 		title: __("Maintenance"),
-		route: "/dashboard/maintenance",
+		route: "/maintenance",
 	},
 ]
 </script>
- 
