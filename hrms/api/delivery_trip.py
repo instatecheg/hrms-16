@@ -7,6 +7,30 @@ import json
 
 
 @frappe.whitelist()
+def mark_all_delivery_stops_visited(trip_name):
+	"""
+	Marks every Delivery Stop row under this Delivery Trip as visited=1,
+	writing directly via frappe.db.set_value (same bypass-the-controller-hooks
+	approach as force_update_delivery_trip) so it isn't affected by whatever
+	status-recalculation logic runs on a normal doc.save().
+	"""
+	if not frappe.has_permission("Delivery Trip", "write", doc=trip_name):
+		frappe.throw(frappe._("Not permitted to update this Delivery Trip"))
+
+	stop_names = frappe.db.get_all(
+		"Delivery Stop",
+		filters={"parent": trip_name, "parenttype": "Delivery Trip"},
+		pluck="name",
+	)
+
+	for stop_name in stop_names:
+		frappe.db.set_value("Delivery Stop", stop_name, "visited", 1, update_modified=True)
+
+	frappe.db.commit()
+
+	return len(stop_names)
+
+@frappe.whitelist()
 def force_update_delivery_trip(name, fields):
 	"""
 	Directly write the given fields on a Delivery Trip via frappe.db.set_value,

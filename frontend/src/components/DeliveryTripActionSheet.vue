@@ -81,7 +81,7 @@
 
 		<!-- Actions -->
 		<div
-			v-if="trip.status === 'Scheduled'"
+			v-if="canStart"
 			class="flex w-full flex-row items-center justify-between gap-3 sticky bottom-0 border-t z-[100] p-4"
 		>
 			<Button
@@ -98,19 +98,20 @@
 		</div>
 
 		<div
-			v-else-if="trip.status === 'In Transit' && !showStopForm"
+			v-else-if="canEndOrStop && !showStopForm"
 			class="flex w-full flex-row items-center justify-between gap-3 sticky bottom-0 border-t z-[100] p-4"
 		>
 			<Button
-				@click="handleDelivered"
+				@click="handleEnd"
 				class="w-full py-5 !bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
 				variant="solid"
 				:loading="isProcessing"
+				:disabled="!customerScale || !proofAttachments.length"
 			>
 				<template #prefix>
-					<FeatherIcon name="flag" class="w-4" />
+					<FeatherIcon name="check-circle" class="w-4" />
 				</template>
-				{{ __("Delivered", null, "Delivery Trip") }}
+				{{ __("End", null, "Delivery Trip") }}
 			</Button>
 			<Button
 				@click="showStopForm = true"
@@ -125,7 +126,7 @@
 		</div>
 
 		<div
-			v-else-if="trip.status === 'In Transit' && showStopForm"
+			v-else-if="canEndOrStop && showStopForm"
 			class="flex w-full flex-row items-center justify-between gap-3 sticky bottom-0 border-t z-[100] p-4"
 		>
 			<Button
@@ -150,20 +151,19 @@
 		</div>
 
 		<div
-			v-else-if="trip.status === 'Delivered'"
+			v-else-if="canResume"
 			class="flex w-full flex-row items-center justify-between gap-3 sticky bottom-0 border-t z-[100] p-4"
 		>
 			<Button
-				@click="handleEnd"
+				@click="handleResume"
 				class="w-full py-5 !bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
 				variant="solid"
 				:loading="isProcessing"
-				:disabled="!customerScale || !proofAttachments.length"
 			>
 				<template #prefix>
-					<FeatherIcon name="check-circle" class="w-4" />
+					<FeatherIcon name="play" class="w-4" />
 				</template>
-				{{ __("End", null, "Delivery Trip") }}
+				{{ __("Resume", null, "Delivery Trip") }}
 			</Button>
 		</div>
 	</div>
@@ -176,7 +176,7 @@ import { FeatherIcon, LoadingIndicator, toast } from "frappe-ui"
 import FileUploaderView from "@/components/FileUploaderView.vue"
 import { FileAttachment } from "@/composables"
 import { useTripLocation } from "@/composables/useTripLocation"
-import { startTrip, markDelivered, stopTrip, completeTrip } from "@/data/deliveryTrips"
+import { startTrip, stopTrip, resumeTrip, completeTrip } from "@/data/deliveryTrips"
 
 const __ = inject("$translate")
 
@@ -195,7 +195,28 @@ const isProcessing = ref(false)
 const showStopForm = ref(false)
 const stopReason = ref("")
 
-const showEndForm = computed(() => trip.value?.status === "Delivered")
+// Cycle (the document is never submitted: docstatus stays 0 at every step):
+//   no departure location           -> [Start]  => In Transit
+//   departure, no arrival location  -> [End] => Delivered   /   [Stop] => Stopped
+//   Stopped                         -> [Resume] => In Transit
+// Buttons follow the location fields, not the status text.
+// A Float location field left empty comes back as 0/null, so both count as "no value".
+const hasLocation = (lat, lng) => !!Number(lat) && !!Number(lng)
+const hasDeparture = computed(() =>
+	hasLocation(trip.value?.departure_location_latitude, trip.value?.departure_location_longitude)
+)
+const hasArrival = computed(() =>
+	hasLocation(trip.value?.arrival_location_latitude, trip.value?.arrival_location_longitude)
+)
+
+const isOpen = computed(
+	() => !["Stopped", "Delivered", "Completed", "Cancelled"].includes(trip.value?.status)
+)
+const canStart = computed(() => isOpen.value && !hasDeparture.value)
+const canEndOrStop = computed(() => isOpen.value && hasDeparture.value && !hasArrival.value)
+const canResume = computed(() => trip.value?.status === "Stopped")
+
+const showEndForm = computed(() => canEndOrStop.value && !showStopForm.value)
 const customerScale = ref("")
 const proofAttachments = ref([])
 const isFileUploading = ref(false)
@@ -254,6 +275,18 @@ async function uploadAllAttachments(documentName, attachments) {
 	isFileUploading.value = false
 }
 
+// Without this, a failed location read or a failed/ignored server write was swallowed
+// silently and the trip just looked like it "did not change".
+function showActionError(e) {
+	console.error(e)
+	toast({
+		title: __("Error"),
+		text: e?.message || String(e),
+		icon: "alert-circle",
+		position: "bottom-center",
+	})
+}
+
 async function handleStartTrip() {
 	isProcessing.value = true
 	try {
@@ -268,6 +301,9 @@ async function handleStartTrip() {
 			longitude: position.coords.longitude,
 		})
 		trip.value.status = "In Transit"
+		trip.value.docstatus = 0
+		trip.value.departure_location_latitude = position.coords.latitude
+		trip.value.departure_location_longitude = position.coords.longitude
 		emit("tripUpdated", trip.value)
 
 		toast({
@@ -277,34 +313,30 @@ async function handleStartTrip() {
 			position: "bottom-center",
 			iconClasses: "text-green-500",
 		})
+	} catch (e) {
+		showActionError(e)
 	} finally {
 		isProcessing.value = false
 	}
 }
 
-async function handleDelivered() {
+async function handleResume() {
 	isProcessing.value = true
 	try {
-		// Location comparison disabled — kept here (commented) for future use:
-		// const canDeliver = await validateLocation(trip.value.lh_destination_map_url)
-		// if (!canDeliver) return
-
-		const position = await fetchLocation()
-
-		await markDelivered(trip.value.name, {
-			latitude: position.coords.latitude,
-			longitude: position.coords.longitude,
-		})
-		trip.value.status = "Delivered"
+		await resumeTrip(trip.value.name)
+		trip.value.status = "In Transit"
+		trip.value.docstatus = 0
 		emit("tripUpdated", trip.value)
 
 		toast({
 			title: __("Success"),
-			text: __("Trip marked as delivered!"),
+			text: __("Trip resumed successfully!"),
 			icon: "check-circle",
 			position: "bottom-center",
 			iconClasses: "text-green-500",
 		})
+	} catch (e) {
+		showActionError(e)
 	} finally {
 		isProcessing.value = false
 	}
@@ -323,8 +355,16 @@ async function handleStop() {
 
 	isProcessing.value = true
 	try {
-		await stopTrip(trip.value.name, stopReason.value.trim())
+		const position = await fetchLocation()
+
+		await stopTrip(trip.value.name, stopReason.value.trim(), {
+			latitude: position.coords.latitude,
+			longitude: position.coords.longitude,
+		})
 		trip.value.status = "Stopped"
+		trip.value.docstatus = 0
+		trip.value.stop_location_latitude = position.coords.latitude
+		trip.value.stop_location_longitude = position.coords.longitude
 		trip.value.stop_reason = stopReason.value.trim()
 		emit("tripUpdated", trip.value)
 
@@ -338,6 +378,8 @@ async function handleStop() {
 			position: "bottom-center",
 			iconClasses: "text-red-500",
 		})
+	} catch (e) {
+		showActionError(e)
 	} finally {
 		isProcessing.value = false
 	}
@@ -356,8 +398,16 @@ async function handleEnd() {
 
 	isProcessing.value = true
 	try {
-		await completeTrip(trip.value.name, customerScale.value)
-		trip.value.status = "Completed"
+		const position = await fetchLocation()
+
+		await completeTrip(trip.value.name, customerScale.value, {
+			latitude: position.coords.latitude,
+			longitude: position.coords.longitude,
+		})
+		trip.value.status = "Delivered"
+		trip.value.docstatus = 0
+		trip.value.arrival_location_latitude = position.coords.latitude
+		trip.value.arrival_location_longitude = position.coords.longitude
 		trip.value.lh_customer_first_weight = customerScale.value
 		emit("tripUpdated", trip.value)
 
@@ -368,6 +418,8 @@ async function handleEnd() {
 			position: "bottom-center",
 			iconClasses: "text-green-500",
 		})
+	} catch (e) {
+		showActionError(e)
 	} finally {
 		isProcessing.value = false
 	}

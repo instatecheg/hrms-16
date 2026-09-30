@@ -108,31 +108,54 @@ export function useTripLocation() {
 		})
 	}
 
-	function fetchLocation() {
-		return new Promise((resolve, reject) => {
-			if (!navigator.geolocation) {
-				handleLocationError()
-				reject()
-				return
-			}
+function fetchLocation() {
+	return new Promise((resolve, reject) => {
+		if (!navigator.geolocation) {
+			handleLocationError()
+			reject(new Error("Geolocation is not supported"))
+			return
+		}
 
-			navigator.geolocation.getCurrentPosition(
-				(position) => {
-					handleLocationSuccess(position)
-					resolve(position)
-				},
-				(error) => {
-					handleLocationError(error)
-					reject(error)
-				},
-				{
-					enableHighAccuracy: true,
-					timeout: 10000,
-					maximumAge: 0,
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				handleLocationSuccess(position)
+				resolve(position)
+			},
+			(error) => {
+				console.error("Geolocation error:", error)
+
+				// If high-accuracy GPS fails, try again using
+				// the device's lower-accuracy location providers.
+				if (error.code === error.TIMEOUT) {
+					navigator.geolocation.getCurrentPosition(
+						(position) => {
+							handleLocationSuccess(position)
+							resolve(position)
+						},
+						(fallbackError) => {
+							handleLocationError(fallbackError)
+							reject(fallbackError)
+						},
+						{
+							enableHighAccuracy: false,
+							timeout: 30000,
+							maximumAge: 60000,
+						}
+					)
+					return
 				}
-			)
-		})
-	}
+
+				handleLocationError(error)
+				reject(error)
+			},
+			{
+				enableHighAccuracy: true,
+				timeout: 30000,
+				maximumAge: 10000,
+			}
+		)
+	})
+}
 
 	async function validateLocation(mapUrl, allowedDistance = 100) {
 		if (!mapUrl) {

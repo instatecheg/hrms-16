@@ -49,6 +49,26 @@
     "precision": "6"
   },
   {
+  "doctype": "Custom Field",
+  "name": "Delivery Trip-stop_location_latitude",
+  "dt": "Delivery Trip",
+  "fieldname": "stop_location_latitude",
+  "fieldtype": "Float",
+  "insert_after": "arrival_location_longitude",
+  "label": "Stop Location Latitude",
+  "precision": "6"
+},
+{
+  "doctype": "Custom Field",
+  "name": "Delivery Trip-stop_location_longitude",
+  "dt": "Delivery Trip",
+  "fieldname": "stop_location_longitude",
+  "fieldtype": "Float",
+  "insert_after": "stop_location_latitude",
+  "label": "Stop Location Longitude",
+  "precision": "6"
+},
+  {
     "doctype": "Custom Field",
     "name": "Delivery Trip-stop_reason",
     "dt": "Delivery Trip",
