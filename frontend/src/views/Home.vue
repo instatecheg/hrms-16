@@ -22,7 +22,7 @@
 
 				<TodayTrips />
 
-				<RequestPanel />
+				<TodayRequests />
 			</div>
 		</template>
 	</BaseLayout>
@@ -32,7 +32,7 @@
 import { inject, markRaw } from "vue"
 
 import BaseLayout from "@/components/BaseLayout.vue"
-import RequestPanel from "@/components/RequestPanel.vue"
+import TodayRequests from "@/components/TodayRequests.vue"
 import TodayTrips from "@/components/TodayTrips.vue"
 import ExpenseIcon from "@/components/icons/ExpenseIcon.vue"
 import DeliveryTripIcon from "@/components/icons/DeliveryTripIcon.vue"
