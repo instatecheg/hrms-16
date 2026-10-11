@@ -8,6 +8,7 @@ import employeeAdvanceRoutes from "./advances"
 import salarySlipRoutes from "./salary_slips"
 import deliveryTripRoutes from "./delivery_trip"
 import maintenanceRoutes from "./maintenance"
+import transportationRequestRoutes from "./transportation_requests"
 
 const routes = [
 	{
@@ -96,6 +97,7 @@ const routes = [
 	...salarySlipRoutes,
 	...deliveryTripRoutes,
 	...maintenanceRoutes,
+	...transportationRequestRoutes,
 ]
 
 const router = createRouter({

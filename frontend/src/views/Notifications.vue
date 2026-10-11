@@ -55,16 +55,15 @@
 							class="flex flex-col bg-white rounded"
 							v-if="notifications.data?.length"
 						>
-							<router-link
+							<div
 								:class="[
-									'flex flex-row items-start p-4 justify-between border-b before:mt-3',
+									'flex flex-row items-start p-4 justify-between border-b before:mt-3 cursor-pointer',
 									`before:content-[''] before:mr-2 before:shrink-0 before:w-1.5 before:h-1.5 before:rounded-full`,
 									item.read ? 'bg-white-500' : 'before:bg-[var(--color-primary)]',
 								]"
 								v-for="item in notifications.data"
 								:key="item.name"
-								:to="getItemRoute(item)"
-								@click="markAsRead(item.name)"
+								@click="openNotification(item)"
 							>
 								<EmployeeAvatar :userID="item.from_user" size="lg" />
 								<div class="flex flex-col gap-0.5 grow ms-3">
@@ -76,8 +75,7 @@
 										{{ dayjs(item.creation).fromNow() }}
 									</div>
 								</div>
-							</router-link>
-							
+							</div>
 						</div>
 						<div v-if="notifications.data?.length && notifications.hasNextPage" class="flex">
 							<Button
@@ -93,17 +91,34 @@
 				</div>
 			</div>
 		</ion-content>
+
+		<Teleport to="body">
+			<div
+				v-if="selectedTrip"
+				class="fixed inset-0 z-[1000] flex items-end justify-center bg-black/40"
+				@click.self="selectedTrip = null"
+			>
+				<div class="w-full sm:w-96 rounded-t-2xl overflow-hidden">
+					<DeliveryTripActionSheet v-model="selectedTrip" @tripUpdated="selectedTrip = null" />
+				</div>
+			</div>
+		</Teleport>
+
+		<TransportationRequestSheet v-model="selectedRequest" @close="selectedRequest = null" />
 	</ion-page>
 </template>
 
 <script setup>
 import { IonContent, IonPage } from "@ionic/vue"
 import { useRouter } from "vue-router"
-import { createResource, FeatherIcon } from "frappe-ui"
+import { createResource, FeatherIcon, call, toast } from "frappe-ui"
 
 import { computed, inject, onMounted, ref } from "vue"
 import EmployeeAvatar from "@/components/EmployeeAvatar.vue"
 import EmptyState from "@/components/EmptyState.vue"
+import DeliveryTripActionSheet from "@/components/DeliveryTripActionSheet.vue"
+import TransportationRequestSheet from "@/components/TransportationRequestSheet.vue"
+import { getTransportationRequest } from "@/data/transportationRequests"
 
 import {
 	unreadNotificationsCount,
@@ -131,22 +146,72 @@ const markAllAsRead = createResource({
 	},
 })
 
-function markAsRead(name) {
-	notifications.setValue.submit(
-		{ name, read: 1 },
-		{
-			onSuccess: () => {
-				unreadNotificationsCount.reload()
-			},
-		}
-	)
+// Goes through a small backend method instead of frappe.client.set_value:
+// the driver role has no write permission on PWA Notification, so the generic
+// set_value call returned 403.
+async function markAsRead(item) {
+	if (item.read) return
+	try {
+		await call("logistics_hub.api.notifications.mark_notification_as_read", {
+			name: item.name,
+		})
+		item.read = 1
+		unreadNotificationsCount.reload()
+	} catch (err) {
+		console.error("Could not mark notification as read", err)
+	}
 }
 
+const selectedTrip = ref(null)
+const selectedRequest = ref(null)
+const opening = ref(false)
+
+// Other doctypes keep the old behavior: go to their detail page if one exists.
 function getItemRoute(item) {
-	return {
-		name: `${item.reference_document_type.replace(/\s+/g, "")}DetailView`,
-		params: { id: item.reference_document_name },
+	if (!item.reference_document_type) return null
+
+	const detailName = `${item.reference_document_type.replace(/\s+/g, "")}DetailView`
+	if (router.hasRoute(detailName)) {
+		return { name: detailName, params: { id: item.reference_document_name } }
 	}
+	return null
+}
+
+async function openNotification(item) {
+	if (opening.value) return
+
+	// mark as read as soon as it's opened
+	markAsRead(item)
+
+	const type = item.reference_document_type
+	const name = item.reference_document_name
+
+	if (type === "Delivery Trip" || type === "Transportation Request") {
+		opening.value = true
+		try {
+			if (type === "Delivery Trip") {
+				selectedTrip.value = await call("frappe.client.get", {
+					doctype: "Delivery Trip",
+					name,
+				})
+			} else {
+				selectedRequest.value = await getTransportationRequest(name)
+			}
+		} catch (err) {
+			toast({
+				title: __("Error"),
+				text: err?.messages?.[0] || __("Could not open {0}", [name]),
+				icon: "alert-circle",
+				position: "bottom-center",
+			})
+		} finally {
+			opening.value = false
+		}
+		return
+	}
+
+	const route = getItemRoute(item)
+	if (route) router.push(route)
 }
 
 onMounted(() => {

@@ -157,5 +157,4 @@ async function uploadAllAttachments(documentName, files) {
 	await Promise.allSettled(uploadPromises)
 	isFileUploading.value = false
 }
-
 </script>
