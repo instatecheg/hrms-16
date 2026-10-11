@@ -51,12 +51,6 @@ const TRIP_LIST_FIELDS = [
 	"lh_truck_type",
 	"lh_source_map_url",
 	"lh_destination_map_url",
-	"docstatus",
-	"stop_reason",
-	"departure_location_latitude",
-	"departure_location_longitude",
-	"arrival_location_latitude",
-	"arrival_location_longitude",
 ]
 
 function transformTripData(data) {
@@ -151,42 +145,26 @@ export async function fetchTripsByStatusGroup(group) {
 
 
 async function forceUpdateTrip(tripName, fields) {
-	const saved = await call("hrms.api.delivery_trip.force_update_delivery_trip", {
+	return call("hrms.api.delivery_trip.force_update_delivery_trip", {
 		name: tripName,
 		fields,
 	})
-
-	// the server returns what is actually stored; if status/docstatus differ from what
-	// we asked for, fail loudly instead of pretending the step succeeded
-	for (const key of ["status", "docstatus"]) {
-		if (key in fields && saved && String(saved[key]) !== String(fields[key])) {
-			throw new Error(`${key} was not saved: expected "${fields[key]}", server has "${saved[key]}"`)
-		}
-	}
-
-	return saved
 }
 
 export async function updateTripStatus(tripName, status) {
 	return forceUpdateTrip(tripName, { status })
 }
 
-// The document is NEVER submitted: every step writes docstatus = 0 together with the new
-// status, so the status moves (In Transit / Stopped / Completed) while it stays a draft.
-// Only the fields listed in each call are written; nothing else is cleared or changed.
-const NOT_SUBMITTED = { docstatus: 0 }
-
-// Start: status -> In Transit, driver's current position is recorded as the departure location
+// Start: driver's current position is recorded as the departure location
 export async function startTrip(tripName, { latitude, longitude }) {
 	return forceUpdateTrip(tripName, {
 		status: "In Transit",
-		...NOT_SUBMITTED,
 		departure_location_latitude: latitude,
 		departure_location_longitude: longitude,
 	})
 }
 
-// (legacy, no longer used by DeliveryTripActionSheet.vue — the Delivered step was removed)
+// Delivered: driver's current position is recorded as the arrival location
 export async function markDelivered(tripName, { latitude, longitude }) {
 	return forceUpdateTrip(tripName, {
 		status: "Delivered",
@@ -195,42 +173,35 @@ export async function markDelivered(tripName, { latitude, longitude }) {
 	})
 }
 
-// Stop: status -> Stopped (docstatus stays 0). Driver's current position is recorded
-// in the stop location fields together with the reason.
-export async function stopTrip(tripName, reason, { latitude, longitude }) {
+// Stop (renamed from Emergency Stop). Now also records the driver's current
+// position at the point they stopped.
+export async function stopTrip(tripName, reason, { latitude, longitude } = {}) {
 	return forceUpdateTrip(tripName, {
 		status: "Stopped",
-		...NOT_SUBMITTED,
 		stop_reason: reason,
 		stop_location_latitude: latitude,
 		stop_location_longitude: longitude,
 	})
 }
 
-// Resume: status -> In Transit again (docstatus stays 0; stop_reason and locations are kept)
-export async function resumeTrip(tripName) {
-	return forceUpdateTrip(tripName, { status: "In Transit", ...NOT_SUBMITTED })
-}
-
-// End: status -> Delivered (docstatus stays 0). Driver's current position is recorded as the
-// arrival location together with the customer scale reading. The delivery proof file is
-// attached separately (see DeliveryTripActionSheet.vue's FileUploader).
-// It also ticks "visited" on every Delivery Stop row of the trip.
-export async function completeTrip(tripName, customerFirstWeight, { latitude, longitude }) {
-	const saved = await forceUpdateTrip(tripName, {
-		status: "Delivered",
-		...NOT_SUBMITTED,
-		arrival_location_latitude: latitude,
-		arrival_location_longitude: longitude,
-		lh_customer_first_weight: customerFirstWeight,
-	})
-
-	// server side: sets visited = 1 on all stops via frappe.db.set_value (no status recalculation)
-	await call("hrms.api.delivery_trip.mark_all_delivery_stops_visited", {
+// End (while In Transit): marks every Delivery Stop row under this trip as
+// visited, via a separate endpoint since child-table rows have their own
+// doctype/name and aren't reachable through frappe.db.set_value on the
+// parent the way flat fields are.
+export async function markAllStopsVisited(tripName) {
+	return call("hrms.api.delivery_trip.mark_all_delivery_stops_visited", {
 		trip_name: tripName,
 	})
+}
 
-	return saved
+// End: customer scale reading closes the trip out. The delivery proof file
+// is attached separately (see DeliveryTripActionSheet.vue's FileUploader),
+// this just records the weight and flips status to Completed.
+export async function completeTrip(tripName, customerFirstWeight) {
+	return forceUpdateTrip(tripName, {
+		status: "Completed",
+		lh_customer_first_weight: customerFirstWeight,
+	})
 }
 
 export { STATUS_GROUPS, ALL_STATUSES }

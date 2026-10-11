@@ -32,33 +32,65 @@
 						<div class="text-gray-800 text-base font-medium text-right">{{ row.value }}</div>
 					</div>
 
-					<!-- Attachments -->
+					<!-- Required attachments -->
 					<div class="flex flex-col gap-2">
-						<label class="text-sm text-gray-600">{{ __("Attachments") }}</label>
+						<label class="text-sm text-gray-600">{{ __("Required Attachments") }} *</label>
 
 						<div
 							class="flex flex-row gap-2 items-center justify-center p-5"
-							v-if="isFileUploading || loadingAttachments"
+							v-if="loadingAttachments || uploadingSection === 'required'"
 						>
 							<LoadingIndicator class="w-3 h-3 text-gray-800" />
 							<span class="text-gray-900 text-sm">
-								{{ isFileUploading ? __("Uploading...") : __("Loading attachments...") }}
+								{{ loadingAttachments ? __("Loading attachments...") : __("Uploading...") }}
 							</span>
 						</div>
 
 						<FileUploaderView
 							v-else
-							v-model="attachments"
-							@handleFileSelect="handleFileSelect"
-							@handleFileDelete="handleFileDelete"
+							v-model="requiredAttachments"
+							@handleFileSelect="(e) => handleFileSelect(e, 'required')"
+							@handleFileDelete="(file) => handleFileDelete(file, 'required')"
+						/>
+
+						<span v-if="!totalAttachments && !loadingAttachments" class="text-xs text-red-600">
+							{{ __("At least one attachment is required.") }}
+						</span>
+					</div>
+
+					<!-- Additional attachments (optional) -->
+					<div class="flex flex-col gap-2">
+						<label class="text-sm text-gray-600">{{ __("Additional Attachments") }}</label>
+
+						<div
+							class="flex flex-row gap-2 items-center justify-center p-5"
+							v-if="uploadingSection === 'other'"
+						>
+							<LoadingIndicator class="w-3 h-3 text-gray-800" />
+							<span class="text-gray-900 text-sm">{{ __("Uploading...") }}</span>
+						</div>
+
+						<FileUploaderView
+							v-else
+							v-model="otherAttachments"
+							@handleFileSelect="(e) => handleFileSelect(e, 'other')"
+							@handleFileDelete="(file) => handleFileDelete(file, 'other')"
 						/>
 					</div>
 				</div>
 
 				<!-- Actions -->
-				<div class="flex flex-row p-4 border-t shrink-0">
+				<div class="flex flex-row gap-3 p-4 border-t shrink-0">
 					<Button variant="outline" class="w-full py-5" @click="$emit('close')">
 						{{ __("Close") }}
+					</Button>
+					<Button
+						variant="solid"
+						class="w-full py-5 !bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
+						:disabled="!totalAttachments || !!uploadingSection || loadingAttachments"
+						@click="handleSave"
+					>
+						{{ __("Save") }}
 					</Button>
 				</div>
 			</div>
@@ -68,7 +100,7 @@
 
 <script setup>
 import { ref, computed, watch, inject } from "vue"
-import { LoadingIndicator, call } from "frappe-ui"
+import { LoadingIndicator, call, toast } from "frappe-ui"
 
 import FileUploaderView from "@/components/FileUploaderView.vue"
 import { FileAttachment } from "@/composables"
@@ -85,9 +117,21 @@ const props = defineProps({
 const emit = defineEmits(["close"])
 
 const request = computed(() => props.modelValue || {})
-const attachments = ref([])
-const isFileUploading = ref(false)
+
+// Two sections in the UI, but all files are attached to the request itself
+// and aren't tagged per section on the server — so after reopening, every
+// file already on the request is listed under "Required Attachments", and a
+// file in either section satisfies the requirement.
+const requiredAttachments = ref([])
+const otherAttachments = ref([])
+const lists = { required: requiredAttachments, other: otherAttachments }
+
+const uploadingSection = ref(null)
 const loadingAttachments = ref(false)
+
+const totalAttachments = computed(
+	() => requiredAttachments.value.length + otherAttachments.value.length
+)
 
 const detailRows = computed(() => {
 	if (!props.modelValue) return []
@@ -99,13 +143,12 @@ const detailRows = computed(() => {
 	].filter((row) => row.value)
 })
 
-// load whatever's already attached to this document whenever a different
-// request is opened (previously this just reset to [], so existing
-// attachments never showed up — only ones uploaded in the current session did)
+// load whatever's already attached to this request whenever one is opened
 watch(
 	() => props.modelValue,
 	async (val) => {
-		attachments.value = []
+		requiredAttachments.value = []
+		otherAttachments.value = []
 		if (!val?.name) return
 
 		loadingAttachments.value = true
@@ -118,7 +161,7 @@ watch(
 				},
 				fields: ["name", "file_name", "file_url"],
 			})
-			attachments.value = files.map((f) => ({ ...f, uploaded: true }))
+			requiredAttachments.value = files.map((f) => ({ ...f, uploaded: true }))
 		} finally {
 			loadingAttachments.value = false
 		}
@@ -126,35 +169,55 @@ watch(
 	{ immediate: true }
 )
 
-const handleFileSelect = (e) => {
-	uploadAllAttachments(request.value.name, [...e.target.files])
+const handleFileSelect = (e, section) => {
+	uploadFiles(request.value.name, [...e.target.files], section)
 }
 
-const handleFileDelete = async (fileObj) => {
+const handleFileDelete = async (fileObj, section) => {
 	if (fileObj.uploaded) {
 		const fileAttachment = new FileAttachment(fileObj)
 		await fileAttachment.delete()
 	}
-	attachments.value = attachments.value.filter((file) => file.name !== fileObj.name)
+	lists[section].value = lists[section].value.filter((file) => file.name !== fileObj.name)
 }
 
-async function uploadAllAttachments(documentName, files) {
-	isFileUploading.value = true
+async function uploadFiles(documentName, files, section) {
+	uploadingSection.value = section
 
-	// FileUploaderView/the file input already allow selecting multiple files
-	// at once; each one here uploads and attaches to the same request so the
-	// driver can build up several attachments.
-	const uploadPromises = files.map((file) => {
-		const fileAttachment = new FileAttachment(file)
-		return fileAttachment
-			.upload("Transportation Request", documentName, "")
-			.then((fileDoc) => {
-				fileDoc.uploaded = true
-				attachments.value.push(fileDoc)
-			})
+	const results = await Promise.allSettled(
+		files.map((file) =>
+			new FileAttachment(file)
+				.upload("Transportation Request", documentName, "")
+				.then((fileDoc) => {
+					fileDoc.uploaded = true
+					lists[section].value.push(fileDoc)
+				})
+		)
+	)
+
+	if (results.some((r) => r.status === "rejected")) {
+		toast({
+			title: __("Error"),
+			text: __("Some files could not be uploaded."),
+			icon: "alert-circle",
+			position: "bottom-center",
+		})
+	}
+	uploadingSection.value = null
+}
+
+// Files are already saved on the request as soon as they're picked, so this
+// just confirms the requirement is met and closes the popup.
+function handleSave() {
+	if (!totalAttachments.value) return
+
+	toast({
+		title: __("Success"),
+		text: __("Attachments saved."),
+		icon: "check-circle",
+		position: "bottom-center",
+		iconClasses: "text-green-500",
 	})
-
-	await Promise.allSettled(uploadPromises)
-	isFileUploading.value = false
+	emit("close")
 }
 </script>
