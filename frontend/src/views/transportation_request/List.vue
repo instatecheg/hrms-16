@@ -43,6 +43,7 @@
 		<TransportationRequestSheet
 			v-model="selectedRequest"
 			@close="selectedRequest = null"
+			@updated="reload"
 		/>
 	</ion-page>
 </template>
@@ -65,12 +66,15 @@ const requests = ref([])
 const loading = ref(true)
 const selectedRequest = ref(null)
 
-onMounted(async () => {
+// also called after the driver moves a request to its next step
+async function reload() {
 	loading.value = true
 	try {
 		requests.value = await fetchAllRequests()
 	} finally {
 		loading.value = false
 	}
-})
+}
+
+onMounted(reload)
 </script>

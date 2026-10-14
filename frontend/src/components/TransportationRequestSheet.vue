@@ -17,81 +17,185 @@
 						v-if="request.workflow_state"
 						class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-card-selected-bg)] text-[var(--color-primary)]"
 					>
-						{{ request.workflow_state }}
+						{{ __(request.workflow_state, null, "Transportation Request") }}
 					</span>
 				</div>
 
 				<!-- Details -->
 				<div class="flex flex-col gap-4 p-4 overflow-y-auto">
 					<div
-						v-for="row in detailRows"
-						:key="row.label"
-						class="flex flex-row items-center justify-between w-full"
+						v-if="loadingDetail"
+						class="flex flex-row gap-2 items-center justify-center p-5"
 					>
-						<div class="text-gray-600 text-base">{{ __(row.label) }}</div>
-						<div class="text-gray-800 text-base font-medium text-right">{{ row.value }}</div>
+						<LoadingIndicator class="w-3 h-3 text-gray-800" />
+						<span class="text-gray-900 text-sm">{{ __("Loading...") }}</span>
 					</div>
 
-					<!-- Required attachments -->
-					<div class="flex flex-col gap-2">
-						<label class="text-sm text-gray-600">{{ __("Required Attachments") }} *</label>
-
-						<div
-							class="flex flex-row gap-2 items-center justify-center p-5"
-							v-if="loadingAttachments || uploadingSection === 'required'"
+					<div
+						v-for="row in detailRows"
+						:key="row.label"
+						class="flex flex-row items-center justify-between w-full gap-3"
+					>
+						<div class="text-gray-600 text-base shrink-0">{{ __(row.label) }}</div>
+						<a
+							v-if="row.link"
+							:href="row.link"
+							target="_blank"
+							rel="noopener"
+							class="flex flex-row items-center gap-1 text-base font-medium text-[var(--color-primary)] underline"
 						>
-							<LoadingIndicator class="w-3 h-3 text-gray-800" />
-							<span class="text-gray-900 text-sm">
-								{{ loadingAttachments ? __("Loading attachments...") : __("Uploading...") }}
+							<FeatherIcon name="map-pin" class="h-4 w-4" />
+							{{ __("Open in Maps") }}
+						</a>
+						<div v-else class="text-gray-800 text-base font-medium text-right">{{ row.value }}</div>
+					</div>
+
+					<!-- Rejected: show why, until the supervisor confirms the cancellation -->
+					<div
+						v-if="request.rejection_reason"
+						class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+					>
+						<div class="font-semibold">{{ __("Rejection Reason") }}</div>
+						<div>{{ request.rejection_reason }}</div>
+					</div>
+
+					<!-- Accepted: attachments, then "Request Documents" -->
+					<template v-if="showAttachments">
+						<div class="flex flex-col gap-2">
+							<label class="text-sm text-gray-600">{{ __("Required Attachments") }} *</label>
+
+							<div
+								class="flex flex-row gap-2 items-center justify-center p-5"
+								v-if="uploadingSection === 'required'"
+							>
+								<LoadingIndicator class="w-3 h-3 text-gray-800" />
+								<span class="text-gray-900 text-sm">{{ __("Uploading...") }}</span>
+							</div>
+
+							<FileUploaderView
+								v-else
+								v-model="requiredAttachments"
+								@handleFileSelect="(e) => handleFileSelect(e, 'required')"
+								@handleFileDelete="(file) => handleFileDelete(file, 'required')"
+							/>
+
+							<span v-if="!totalAttachments" class="text-xs text-red-600">
+								{{ __("At least one attachment is required.") }}
 							</span>
 						</div>
 
-						<FileUploaderView
-							v-else
-							v-model="requiredAttachments"
-							@handleFileSelect="(e) => handleFileSelect(e, 'required')"
-							@handleFileDelete="(file) => handleFileDelete(file, 'required')"
-						/>
+						<div class="flex flex-col gap-2">
+							<label class="text-sm text-gray-600">{{ __("Additional Attachments") }}</label>
 
-						<span v-if="!totalAttachments && !loadingAttachments" class="text-xs text-red-600">
-							{{ __("At least one attachment is required.") }}
-						</span>
+							<div
+								class="flex flex-row gap-2 items-center justify-center p-5"
+								v-if="uploadingSection === 'other'"
+							>
+								<LoadingIndicator class="w-3 h-3 text-gray-800" />
+								<span class="text-gray-900 text-sm">{{ __("Uploading...") }}</span>
+							</div>
+
+							<FileUploaderView
+								v-else
+								v-model="otherAttachments"
+								@handleFileSelect="(e) => handleFileSelect(e, 'other')"
+								@handleFileDelete="(file) => handleFileDelete(file, 'other')"
+							/>
+						</div>
+					</template>
+
+					<!-- Reject: the reason is required -->
+					<div v-if="rejecting" class="flex flex-col gap-2">
+						<label class="text-sm text-gray-600">{{ __("Rejection Reason") }} *</label>
+						<textarea
+							v-model="rejectionReason"
+							rows="3"
+							class="w-full rounded border border-gray-300 p-2 text-base"
+							:placeholder="__('Why are you rejecting this request?')"
+						/>
 					</div>
 
-					<!-- Additional attachments (optional) -->
-					<div class="flex flex-col gap-2">
-						<label class="text-sm text-gray-600">{{ __("Additional Attachments") }}</label>
-
-						<div
-							class="flex flex-row gap-2 items-center justify-center p-5"
-							v-if="uploadingSection === 'other'"
-						>
-							<LoadingIndicator class="w-3 h-3 text-gray-800" />
-							<span class="text-gray-900 text-sm">{{ __("Uploading...") }}</span>
-						</div>
-
-						<FileUploaderView
-							v-else
-							v-model="otherAttachments"
-							@handleFileSelect="(e) => handleFileSelect(e, 'other')"
-							@handleFileDelete="(file) => handleFileDelete(file, 'other')"
-						/>
+					<!-- Nothing for the driver to do: say who the request is waiting for -->
+					<div
+						v-if="waitingMessage"
+						class="rounded-lg bg-[var(--color-card-selected-bg)] p-3 text-sm text-gray-700"
+					>
+						{{ waitingMessage }}
 					</div>
 				</div>
 
 				<!-- Actions -->
-				<div class="flex flex-row gap-3 p-4 border-t shrink-0">
-					<Button variant="outline" class="w-full py-5" @click="$emit('close')">
-						{{ __("Close") }}
-					</Button>
-					<Button
-						variant="solid"
-						class="w-full py-5 !bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
-						:disabled="!totalAttachments || !!uploadingSection || loadingAttachments"
-						@click="handleSave"
-					>
-						{{ __("Save") }}
-					</Button>
+				<div class="flex flex-col gap-3 p-4 border-t shrink-0">
+					<template v-if="!rejecting">
+						<Button
+							v-if="can('Head to loading location')"
+							variant="solid"
+							:class="primaryButton"
+							:loading="busy"
+							@click="runAction('Head to loading location', { withLocation: true })"
+						>
+							{{ __("Go to Location") }}
+						</Button>
+
+						<Button
+							v-if="can('Confirm arrival at loading')"
+							variant="solid"
+							:class="primaryButton"
+							:loading="busy"
+							@click="runAction('Confirm arrival at loading', { withLocation: true })"
+						>
+							{{ __("Arrived at Loading Location") }}
+						</Button>
+
+						<div v-if="can('Accept')" class="flex flex-row gap-3">
+							<Button
+								variant="solid"
+								class="w-full py-5 !bg-green-600 hover:!bg-green-700 !text-white"
+								:loading="busy"
+								@click="runAction('Accept')"
+							>
+								{{ __("Accept") }}
+							</Button>
+							<Button
+								variant="solid"
+								class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
+								:disabled="busy"
+								@click="rejecting = true"
+							>
+								{{ __("Reject") }}
+							</Button>
+						</div>
+
+						<Button
+							v-if="can('Request documents')"
+							variant="solid"
+							:class="primaryButton"
+							:loading="busy"
+							:disabled="!totalAttachments || !!uploadingSection"
+							@click="runAction('Request documents')"
+						>
+							{{ __("Request Documents") }}
+						</Button>
+
+						<Button variant="outline" class="w-full py-5" @click="$emit('close')">
+							{{ __("Close") }}
+						</Button>
+					</template>
+
+					<div v-else class="flex flex-row gap-3">
+						<Button variant="outline" class="w-full py-5" :disabled="busy" @click="rejecting = false">
+							{{ __("Back") }}
+						</Button>
+						<Button
+							variant="solid"
+							class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
+							:loading="busy"
+							:disabled="!rejectionReason.trim()"
+							@click="runAction('Reject', { reason: rejectionReason.trim() })"
+						>
+							{{ __("Confirm Rejection") }}
+						</Button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -100,10 +204,12 @@
 
 <script setup>
 import { ref, computed, watch, inject } from "vue"
-import { LoadingIndicator, call, toast } from "frappe-ui"
+import { FeatherIcon, LoadingIndicator, call, toast } from "frappe-ui"
 
 import FileUploaderView from "@/components/FileUploaderView.vue"
 import { FileAttachment } from "@/composables"
+import { useTripLocation } from "@/composables/useTripLocation"
+import { formatTimestamp } from "@/utils/formatters"
 
 const __ = inject("$translate")
 
@@ -114,9 +220,22 @@ const props = defineProps({
 	},
 })
 
-const emit = defineEmits(["close"])
+const emit = defineEmits(["close", "updated"])
 
-const request = computed(() => props.modelValue || {})
+const { latitude, longitude, fetchLocation } = useTripLocation()
+
+const primaryButton =
+	"w-full py-5 !bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
+
+// Full request from the server: the fields shown below, the driver's allowed
+// actions for the current workflow state, and the files already attached.
+const detail = ref(null)
+const loadingDetail = ref(false)
+const busy = ref(false)
+const rejecting = ref(false)
+const rejectionReason = ref("")
+
+const request = computed(() => detail.value || props.modelValue || {})
 
 // Two sections in the UI, but all files are attached to the request itself
 // and aren't tagged per section on the server — so after reopening, every
@@ -127,47 +246,122 @@ const otherAttachments = ref([])
 const lists = { required: requiredAttachments, other: otherAttachments }
 
 const uploadingSection = ref(null)
-const loadingAttachments = ref(false)
 
 const totalAttachments = computed(
 	() => requiredAttachments.value.length + otherAttachments.value.length
 )
 
+const can = (action) => (detail.value?.actions || []).includes(action)
+
+// Attachments are added once the driver accepted, and stay editable until the trip is created.
+const showAttachments = computed(() =>
+	["Accepted by driver", "Documents requested"].includes(request.value.workflow_state)
+)
+
+const WAITING_MESSAGES = {
+	"Documents requested": "Documents requested. Waiting for the supervisor to create the trip.",
+	"Rejected by driver": "You rejected this request. Waiting for the supervisor to confirm the cancellation.",
+	"Trip created": "The trip has been created for this request.",
+	Cancelled: "This request was cancelled.",
+}
+const waitingMessage = computed(() => {
+	if (loadingDetail.value || !detail.value || detail.value.actions?.length) return ""
+	const message = WAITING_MESSAGES[request.value.workflow_state]
+	return message ? __(message) : ""
+})
+
+// Shown in this order: customer name, departure time, from, to, vehicle, driver, location.
 const detailRows = computed(() => {
 	if (!props.modelValue) return []
+	const r = request.value
 	return [
-		{ label: "Customer", value: request.value.customer_name || request.value.customer },
-		{ label: "Route", value: request.value.route },
-		{ label: "Departure Time", value: request.value.departure_time },
-		{ label: "Driver", value: request.value.driver_name },
+		{ label: "Customer Name", value: r.customer_name || r.customer },
+		{ label: "Departure Time", value: r.departure_time ? formatTimestamp(r.departure_time) : "" },
+		{ label: "From", value: r.from },
+		{ label: "To", value: r.to },
+		{ label: "Vehicle", value: r.vehicle },
+		{ label: "Driver", value: r.driver_name || r.driver },
+		{ label: "Location", value: r.location, link: r.location },
 	].filter((row) => row.value)
 })
 
-// load whatever's already attached to this request whenever one is opened
+function setDetail(data) {
+	detail.value = data
+	requiredAttachments.value = (data?.attachments || []).map((f) => ({ ...f, uploaded: true }))
+	otherAttachments.value = []
+}
+
+// load the request (with its allowed actions and files) whenever one is opened
 watch(
-	() => props.modelValue,
-	async (val) => {
+	() => props.modelValue?.name,
+	async (name) => {
+		detail.value = null
+		rejecting.value = false
+		rejectionReason.value = ""
 		requiredAttachments.value = []
 		otherAttachments.value = []
-		if (!val?.name) return
+		if (!name) return
 
-		loadingAttachments.value = true
+		loadingDetail.value = true
 		try {
-			const files = await call("frappe.client.get_list", {
-				doctype: "File",
-				filters: {
-					attached_to_doctype: "Transportation Request",
-					attached_to_name: val.name,
-				},
-				fields: ["name", "file_name", "file_url"],
-			})
-			requiredAttachments.value = files.map((f) => ({ ...f, uploaded: true }))
+			setDetail(
+				await call("hrms.api.transportation_request.get_driver_transportation_request", { name })
+			)
+		} catch (err) {
+			showError(err)
 		} finally {
-			loadingAttachments.value = false
+			loadingDetail.value = false
 		}
 	},
 	{ immediate: true }
 )
+
+function showError(err) {
+	toast({
+		title: __("Error"),
+		text: err?.messages?.[0] || err?.message || __("Something went wrong."),
+		icon: "alert-circle",
+		position: "bottom-center",
+	})
+}
+
+// "Go to Location" / "Arrived at Loading Location" send where the driver is now;
+// the server keeps it as a map link on the request.
+async function runAction(action, { withLocation = false, reason = null } = {}) {
+	busy.value = true
+	try {
+		const args = { name: request.value.name, action }
+		if (withLocation) {
+			try {
+				await fetchLocation()
+			} catch {
+				return // fetchLocation already told the driver what went wrong
+			}
+			args.latitude = latitude.value
+			args.longitude = longitude.value
+		}
+		if (reason) args.reason = reason
+
+		const updated = await call(
+			"hrms.api.transportation_request.apply_driver_transportation_request_action",
+			args
+		)
+		setDetail(updated)
+		rejecting.value = false
+		emit("updated", updated)
+		toast({
+			title: __("Success"),
+			text: __(updated.workflow_state, null, "Transportation Request"),
+			icon: "check-circle",
+			position: "bottom-center",
+			iconClasses: "text-green-500",
+		})
+	} catch (err) {
+		showError(err)
+	} finally {
+		busy.value = false
+	}
+}
 
 const handleFileSelect = (e, section) => {
 	uploadFiles(request.value.name, [...e.target.files], section)
@@ -204,20 +398,5 @@ async function uploadFiles(documentName, files, section) {
 		})
 	}
 	uploadingSection.value = null
-}
-
-// Files are already saved on the request as soon as they're picked, so this
-// just confirms the requirement is met and closes the popup.
-function handleSave() {
-	if (!totalAttachments.value) return
-
-	toast({
-		title: __("Success"),
-		text: __("Attachments saved."),
-		icon: "check-circle",
-		position: "bottom-center",
-		iconClasses: "text-green-500",
-	})
-	emit("close")
 }
 </script>

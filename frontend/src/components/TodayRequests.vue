@@ -29,6 +29,7 @@
 		<TransportationRequestSheet
 			v-model="selectedRequest"
 			@close="selectedRequest = null"
+			@updated="reload"
 		/>
 	</div>
 </template>
@@ -46,7 +47,10 @@ const __ = inject("$translate")
 const requests = ref([])
 const selectedRequest = ref(null)
 
-onMounted(async () => {
+// also called after the driver moves a request to its next step
+async function reload() {
 	requests.value = await fetchDriverRequests()
-})
+}
+
+onMounted(reload)
 </script>

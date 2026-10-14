@@ -7,6 +7,8 @@ const REQUEST_FIELDS = [
 	"customer",
 	"customer_name",
 	"route",
+	"from",
+	"to",
 	"departure_time",
 	"workflow_state",
 	"docstatus",
@@ -45,15 +47,24 @@ async function fetchRequests(extraFilters = {}) {
 	})
 }
 
-// "Requests" panel on Home: only the ones actually handed to the driver,
+// Workflow states in which the driver still has a step to do
+// (Go to Location, Arrived at Loading Location, Accept / Reject, Request Documents).
+export const DRIVER_ACTIVE_STATES = [
+	"Sent to driver",
+	"Driver heading to loading",
+	"Driver at loading location",
+	"Accepted by driver",
+]
+
+// "Requests" panel on Home: only the ones still waiting on the driver,
 // regardless of date.
 export async function fetchDriverRequests() {
-	return fetchRequests({ workflow_state: "Sent to driver" })
+	return fetchRequests({ workflow_state: ["in", DRIVER_ACTIVE_STATES] })
 }
 
 // "All" page: every state except Draft (Draft is Supervisor-only, so the
-// driver shouldn't see it at all; everything else — Sent to driver,
-// Converted to trip, Cancelled, and any future state — is fair game).
+// driver shouldn't see it at all; everything else — the driver steps,
+// Documents requested, Trip created, Cancelled, and any future state — is fair game).
 export async function fetchAllRequests() {
 	return fetchRequests({ workflow_state: ["!=", "Draft"] })
 }
