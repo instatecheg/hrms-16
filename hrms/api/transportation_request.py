@@ -1,7 +1,8 @@
 """Transportation Request steps for the driver in the mobile app.
 
 Go to Location / Arrived at Loading Location (with the phone's GPS), Accept,
-Reject (with a reason) and Request Documents (needs at least one attachment).
+Reject (with a reason, attachments optional), Cancel (at the loading location)
+and Request Documents (needs at least one attachment).
 The workflow itself (states, who may press what) is the "Transportation Request"
 Workflow; these methods only add what the driver reports on each step.
 """
@@ -17,11 +18,12 @@ LOCATION_FIELDS = {
 	"Head to loading location": "driver_start_location",
 	"Confirm arrival at loading": "loading_arrival_location",
 }
-DRIVER_ACTIONS = {*LOCATION_FIELDS, "Accept", "Reject", "Request documents"}
+DRIVER_ACTIONS = {*LOCATION_FIELDS, "Accept", "Reject", "Cancel request", "Request documents"}
 
 DETAIL_FIELDS = (
 	"customer",
 	"customer_name",
+	"customer_info",
 	"departure_time",
 	"from",
 	"to",

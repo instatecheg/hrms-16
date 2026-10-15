@@ -11955,3 +11955,165 @@ msgstr "إغلاق"
 #: frontend (mobile app, logistics branch)
 msgid "{0} balance"
 msgstr "رصيد {0}"
+
+msgid "Requests"
+msgstr "الطلبات"
+
+msgid "No requests"
+msgstr "لا توجد طلبات"
+
+msgid "No requests found"
+msgstr "لم يتم العثور على طلبات"
+
+msgid "No {0} found"
+msgstr "لم يتم العثور على {0}"
+
+msgid "Load more"
+msgstr "تحميل المزيد"
+
+msgid "Mark all as read"
+msgstr "تعليم الكل كمقروء"
+
+msgid "Profile"
+msgstr "الملف الشخصي"
+
+msgid "Active"
+msgstr "نشط"
+
+msgid "Submit"
+msgstr "إرسال"
+
+msgid "Success"
+msgstr "تم بنجاح"
+
+msgid "Error"
+msgstr "خطأ"
+
+msgid "Something went wrong."
+msgstr "حدث خطأ ما."
+
+msgid "Could not open {0}"
+msgstr "تعذر فتح {0}"
+
+msgid "and then"
+msgstr "ثم"
+
+msgid "Draft"
+msgstr "مسودة"
+
+msgid "Cancelled"
+msgstr "ملغي"
+
+msgid "Stopped"
+msgstr "متوقفة"
+
+msgid "Start"
+msgstr "بدء"
+
+msgid "Stop"
+msgstr "إيقاف"
+
+msgid "End"
+msgstr "إنهاء"
+
+msgid "Could not start trip."
+msgstr "تعذر بدء الرحلة."
+
+msgid "Sent to driver"
+msgstr "أُرسل للسائق"
+
+msgid "Driver heading to loading"
+msgstr "السائق في الطريق للتحميل"
+
+msgid "Driver at loading location"
+msgstr "السائق في موقع التحميل"
+
+msgid "Accepted by driver"
+msgstr "قبِل السائق الطلب"
+
+msgid "Rejected by driver"
+msgstr "رفض السائق الطلب"
+
+msgid "Documents requested"
+msgstr "طُلبت المستندات"
+
+msgid "Trip created"
+msgstr "أُنشئت الرحلة"
+
+msgid "Location"
+msgstr "الموقع"
+
+msgid "Open in Maps"
+msgstr "فتح في الخرائط"
+
+msgid "Go to Location"
+msgstr "التوجه إلى الموقع"
+
+msgid "Arrived at Loading Location"
+msgstr "وصلت إلى موقع التحميل"
+
+msgid "Accept"
+msgstr "قبول"
+
+msgid "Confirm Rejection"
+msgstr "تأكيد الرفض"
+
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+msgid "Why are you rejecting this request?"
+msgstr "لماذا ترفض هذا الطلب؟"
+
+msgid "Request Documents"
+msgstr "طلب المستندات"
+
+msgid "Required Attachments"
+msgstr "المرفقات المطلوبة"
+
+msgid "Additional Attachments"
+msgstr "مرفقات إضافية"
+
+msgid "At least one attachment is required."
+msgstr "مطلوب مرفق واحد على الأقل."
+
+msgid "Some files could not be uploaded."
+msgstr "تعذر رفع بعض الملفات."
+
+msgid "Documents requested. Waiting for the supervisor to create the trip."
+msgstr "تم طلب المستندات. بانتظار المشرف لإنشاء الرحلة."
+
+msgid "You rejected this request. Waiting for the supervisor to confirm the cancellation."
+msgstr "لقد رفضت هذا الطلب. بانتظار المشرف لتأكيد الإلغاء."
+
+msgid "The trip has been created for this request."
+msgstr "تم إنشاء الرحلة لهذا الطلب."
+
+msgid "This request was cancelled."
+msgstr "تم إلغاء هذا الطلب."
+
+msgid "Customer Info"
+msgstr "معلومات العميل"
+
+msgid "Departure Date"
+msgstr "تاريخ المغادرة"
+
+msgid "Cancel Request"
+msgstr "إلغاء الطلب"
+
+msgid "Confirm Cancellation"
+msgstr "تأكيد الإلغاء"
+
+msgid "Cancel this request? The supervisor will be asked to confirm the cancellation."
+msgstr "هل تريد إلغاء هذا الطلب؟ سيُطلب من المشرف تأكيد الإلغاء."
+
+msgid "You cancelled this request. Waiting for the supervisor to confirm the cancellation."
+msgstr "لقد ألغيت هذا الطلب. بانتظار المشرف لتأكيد الإلغاء."
+
+msgid "Cancelled by driver"
+msgstr "ألغى السائق الطلب"
+
+msgid "Back"
+msgstr "رجوع"
+
+msgid "Documents requested. Waiting for the documents and diesel to be prepared and the trip to start."
+msgstr "تم طلب المستندات. بانتظار تجهيز المستندات والديزل وبدء الرحلة."

@@ -47,7 +47,7 @@
 							<FeatherIcon name="map-pin" class="h-4 w-4" />
 							{{ __("Open in Maps") }}
 						</a>
-						<div v-else class="text-gray-800 text-base font-medium text-right">{{ row.value }}</div>
+						<div v-else class="text-gray-800 text-base font-medium text-right whitespace-pre-line">{{ row.value }}</div>
 					</div>
 
 					<!-- Rejected: show why, until the supervisor confirms the cancellation -->
@@ -104,8 +104,8 @@
 						</div>
 					</template>
 
-					<!-- Reject: the reason is required -->
-					<div v-if="rejecting" class="flex flex-col gap-2">
+					<!-- Reject: the note is required, attachments are optional; both reach the supervisor -->
+					<div v-if="confirming === 'reject'" class="flex flex-col gap-2">
 						<label class="text-sm text-gray-600">{{ __("Rejection Reason") }} *</label>
 						<textarea
 							v-model="rejectionReason"
@@ -113,6 +113,29 @@
 							class="w-full rounded border border-gray-300 p-2 text-base"
 							:placeholder="__('Why are you rejecting this request?')"
 						/>
+
+						<label class="text-sm text-gray-600">{{ __("Attachments") }}</label>
+						<div
+							class="flex flex-row gap-2 items-center justify-center p-5"
+							v-if="uploadingSection === 'reject'"
+						>
+							<LoadingIndicator class="w-3 h-3 text-gray-800" />
+							<span class="text-gray-900 text-sm">{{ __("Uploading...") }}</span>
+						</div>
+						<FileUploaderView
+							v-else
+							v-model="rejectAttachments"
+							@handleFileSelect="(e) => handleFileSelect(e, 'reject')"
+							@handleFileDelete="(file) => handleFileDelete(file, 'reject')"
+						/>
+					</div>
+
+					<!-- Cancel at the loading location: the supervisor still confirms the cancellation -->
+					<div
+						v-if="confirming === 'cancel'"
+						class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+					>
+						{{ __("Cancel this request? The supervisor will be asked to confirm the cancellation.") }}
 					</div>
 
 					<!-- Nothing for the driver to do: say who the request is waiting for -->
@@ -126,7 +149,7 @@
 
 				<!-- Actions -->
 				<div class="flex flex-col gap-3 p-4 border-t shrink-0">
-					<template v-if="!rejecting">
+					<template v-if="!confirming">
 						<Button
 							v-if="can('Head to loading location')"
 							variant="solid"
@@ -160,11 +183,21 @@
 								variant="solid"
 								class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
 								:disabled="busy"
-								@click="rejecting = true"
+								@click="confirming = 'reject'"
 							>
 								{{ __("Reject") }}
 							</Button>
 						</div>
+
+						<Button
+							v-if="can('Cancel request')"
+							variant="outline"
+							class="w-full py-5 !border-red-600 !text-red-600"
+							:disabled="busy"
+							@click="confirming = 'cancel'"
+						>
+							{{ __("Cancel Request") }}
+						</Button>
 
 						<Button
 							v-if="can('Request documents')"
@@ -183,17 +216,27 @@
 					</template>
 
 					<div v-else class="flex flex-row gap-3">
-						<Button variant="outline" class="w-full py-5" :disabled="busy" @click="rejecting = false">
+						<Button variant="outline" class="w-full py-5" :disabled="busy" @click="confirming = null">
 							{{ __("Back") }}
 						</Button>
 						<Button
+							v-if="confirming === 'reject'"
 							variant="solid"
 							class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
 							:loading="busy"
-							:disabled="!rejectionReason.trim()"
+							:disabled="!rejectionReason.trim() || !!uploadingSection"
 							@click="runAction('Reject', { reason: rejectionReason.trim() })"
 						>
 							{{ __("Confirm Rejection") }}
+						</Button>
+						<Button
+							v-else
+							variant="solid"
+							class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
+							:loading="busy"
+							@click="runAction('Cancel request')"
+						>
+							{{ __("Confirm Cancellation") }}
 						</Button>
 					</div>
 				</div>
@@ -209,9 +252,9 @@ import { FeatherIcon, LoadingIndicator, call, toast } from "frappe-ui"
 import FileUploaderView from "@/components/FileUploaderView.vue"
 import { FileAttachment } from "@/composables"
 import { useTripLocation } from "@/composables/useTripLocation"
-import { formatTimestamp } from "@/utils/formatters"
 
 const __ = inject("$translate")
+const dayjs = inject("$dayjs")
 
 const props = defineProps({
 	modelValue: {
@@ -232,7 +275,8 @@ const primaryButton =
 const detail = ref(null)
 const loadingDetail = ref(false)
 const busy = ref(false)
-const rejecting = ref(false)
+// null, "reject" or "cancel": the step waiting for the driver to confirm
+const confirming = ref(null)
 const rejectionReason = ref("")
 
 const request = computed(() => detail.value || props.modelValue || {})
@@ -243,7 +287,8 @@ const request = computed(() => detail.value || props.modelValue || {})
 // file in either section satisfies the requirement.
 const requiredAttachments = ref([])
 const otherAttachments = ref([])
-const lists = { required: requiredAttachments, other: otherAttachments }
+const rejectAttachments = ref([])
+const lists = { required: requiredAttachments, other: otherAttachments, reject: rejectAttachments }
 
 const uploadingSection = ref(null)
 
@@ -259,8 +304,9 @@ const showAttachments = computed(() =>
 )
 
 const WAITING_MESSAGES = {
-	"Documents requested": "Documents requested. Waiting for the supervisor to create the trip.",
+	"Documents requested": "Documents requested. Waiting for the documents and diesel to be prepared and the trip to start.",
 	"Rejected by driver": "You rejected this request. Waiting for the supervisor to confirm the cancellation.",
+	"Cancelled by driver": "You cancelled this request. Waiting for the supervisor to confirm the cancellation.",
 	"Trip created": "The trip has been created for this request.",
 	Cancelled: "This request was cancelled.",
 }
@@ -270,13 +316,17 @@ const waitingMessage = computed(() => {
 	return message ? __(message) : ""
 })
 
-// Shown in this order: customer name, departure time, from, to, vehicle, driver, location.
+// Shown in this order: customer name, customer info (only when filled), departure date,
+// departure time, from, to, vehicle, driver, location.
 const detailRows = computed(() => {
 	if (!props.modelValue) return []
 	const r = request.value
+	const departure = r.departure_time ? dayjs(r.departure_time) : null
 	return [
 		{ label: "Customer Name", value: r.customer_name || r.customer },
-		{ label: "Departure Time", value: r.departure_time ? formatTimestamp(r.departure_time) : "" },
+		{ label: "Customer Info", value: r.customer_info },
+		{ label: "Departure Date", value: departure ? departure.format("D MMM YYYY") : "" },
+		{ label: "Departure Time", value: departure ? departure.format("hh:mm a") : "" },
 		{ label: "From", value: r.from },
 		{ label: "To", value: r.to },
 		{ label: "Vehicle", value: r.vehicle },
@@ -296,10 +346,11 @@ watch(
 	() => props.modelValue?.name,
 	async (name) => {
 		detail.value = null
-		rejecting.value = false
+		confirming.value = null
 		rejectionReason.value = ""
 		requiredAttachments.value = []
 		otherAttachments.value = []
+		rejectAttachments.value = []
 		if (!name) return
 
 		loadingDetail.value = true
@@ -347,7 +398,7 @@ async function runAction(action, { withLocation = false, reason = null } = {}) {
 			args
 		)
 		setDetail(updated)
-		rejecting.value = false
+		confirming.value = null
 		emit("updated", updated)
 		toast({
 			title: __("Success"),
