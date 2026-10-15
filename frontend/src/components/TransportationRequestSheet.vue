@@ -50,16 +50,16 @@
 						<div v-else class="text-gray-800 text-base font-medium text-right whitespace-pre-line">{{ row.value }}</div>
 					</div>
 
-					<!-- Rejected: show why, until the supervisor confirms the cancellation -->
+					<!-- Cancelled by the driver: show why, until the supervisor confirms the cancellation -->
 					<div
 						v-if="request.rejection_reason"
 						class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
 					>
-						<div class="font-semibold">{{ __("Rejection Reason") }}</div>
+						<div class="font-semibold">{{ __("Cancellation Reason") }}</div>
 						<div>{{ request.rejection_reason }}</div>
 					</div>
 
-					<!-- Accepted: attachments, then "Request Documents" -->
+					<!-- Confirmed: attachments, then "Request Documents" -->
 					<template v-if="showAttachments">
 						<div class="flex flex-col gap-2">
 							<label class="text-sm text-gray-600">{{ __("Required Attachments") }} *</label>
@@ -104,38 +104,33 @@
 						</div>
 					</template>
 
-					<!-- Reject: the note is required, attachments are optional; both reach the supervisor -->
-					<div v-if="confirming === 'reject'" class="flex flex-col gap-2">
-						<label class="text-sm text-gray-600">{{ __("Rejection Reason") }} *</label>
+					<!-- Cancel (on the way or at the loading location): reason required, attachments optional -->
+					<div v-if="confirming === 'cancel'" class="flex flex-col gap-2">
+						<div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+							{{ __("Cancel this request? The supervisor will be asked to confirm the cancellation.") }}
+						</div>
+						<label class="text-sm text-gray-600">{{ __("Cancellation Reason") }} *</label>
 						<textarea
-							v-model="rejectionReason"
+							v-model="cancelReason"
 							rows="3"
 							class="w-full rounded border border-gray-300 p-2 text-base"
-							:placeholder="__('Why are you rejecting this request?')"
+							:placeholder="__('Why are you cancelling this request?')"
 						/>
 
 						<label class="text-sm text-gray-600">{{ __("Attachments") }}</label>
 						<div
 							class="flex flex-row gap-2 items-center justify-center p-5"
-							v-if="uploadingSection === 'reject'"
+							v-if="uploadingSection === 'cancel'"
 						>
 							<LoadingIndicator class="w-3 h-3 text-gray-800" />
 							<span class="text-gray-900 text-sm">{{ __("Uploading...") }}</span>
 						</div>
 						<FileUploaderView
 							v-else
-							v-model="rejectAttachments"
-							@handleFileSelect="(e) => handleFileSelect(e, 'reject')"
-							@handleFileDelete="(file) => handleFileDelete(file, 'reject')"
+							v-model="cancelAttachments"
+							@handleFileSelect="(e) => handleFileSelect(e, 'cancel')"
+							@handleFileDelete="(file) => handleFileDelete(file, 'cancel')"
 						/>
-					</div>
-
-					<!-- Cancel at the loading location: the supervisor still confirms the cancellation -->
-					<div
-						v-if="confirming === 'cancel'"
-						class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
-					>
-						{{ __("Cancel this request? The supervisor will be asked to confirm the cancellation.") }}
 					</div>
 
 					<!-- Nothing for the driver to do: say who the request is waiting for -->
@@ -160,44 +155,46 @@
 							{{ __("Go to Location") }}
 						</Button>
 
-						<Button
-							v-if="can('Confirm arrival at loading')"
-							variant="solid"
-							:class="primaryButton"
-							:loading="busy"
-							@click="runAction('Confirm arrival at loading', { withLocation: true })"
-						>
-							{{ __("Arrived at Loading Location") }}
-						</Button>
+						<!-- On the way: arrive, or cancel -->
+						<div v-if="can('Confirm arrival at loading')" class="flex flex-row gap-3">
+							<Button
+								variant="solid"
+								:class="primaryButton"
+								:loading="busy"
+								@click="runAction('Confirm arrival at loading', { withLocation: true })"
+							>
+								{{ __("Arrived at Loading Location") }}
+							</Button>
+							<Button
+								v-if="can(DRIVER_CANCEL)"
+								variant="outline"
+								class="py-5 !border-red-600 !text-red-600"
+								:disabled="busy"
+								@click="confirming = 'cancel'"
+							>
+								{{ __("Cancel") }}
+							</Button>
+						</div>
 
-						<div v-if="can('Accept')" class="flex flex-row gap-3">
+						<!-- At the loading location: the driver's confirmation -->
+						<div v-if="can('Confirm')" class="flex flex-row gap-3">
 							<Button
 								variant="solid"
 								class="w-full py-5 !bg-green-600 hover:!bg-green-700 !text-white"
 								:loading="busy"
-								@click="runAction('Accept')"
+								@click="runAction('Confirm')"
 							>
-								{{ __("Accept") }}
+								{{ __("Confirm") }}
 							</Button>
 							<Button
 								variant="solid"
 								class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
 								:disabled="busy"
-								@click="confirming = 'reject'"
+								@click="confirming = 'cancel'"
 							>
-								{{ __("Reject") }}
+								{{ __("Cancel") }}
 							</Button>
 						</div>
-
-						<Button
-							v-if="can('Cancel request')"
-							variant="outline"
-							class="w-full py-5 !border-red-600 !text-red-600"
-							:disabled="busy"
-							@click="confirming = 'cancel'"
-						>
-							{{ __("Cancel Request") }}
-						</Button>
 
 						<Button
 							v-if="can('Request documents')"
@@ -220,21 +217,11 @@
 							{{ __("Back") }}
 						</Button>
 						<Button
-							v-if="confirming === 'reject'"
 							variant="solid"
 							class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
 							:loading="busy"
-							:disabled="!rejectionReason.trim() || !!uploadingSection"
-							@click="runAction('Reject', { reason: rejectionReason.trim() })"
-						>
-							{{ __("Confirm Rejection") }}
-						</Button>
-						<Button
-							v-else
-							variant="solid"
-							class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
-							:loading="busy"
-							@click="runAction('Cancel request')"
+							:disabled="!cancelReason.trim() || !!uploadingSection"
+							@click="runAction(DRIVER_CANCEL, { reason: cancelReason.trim() })"
 						>
 							{{ __("Confirm Cancellation") }}
 						</Button>
@@ -275,9 +262,11 @@ const primaryButton =
 const detail = ref(null)
 const loadingDetail = ref(false)
 const busy = ref(false)
-// null, "reject" or "cancel": the step waiting for the driver to confirm
+// null or "cancel": the driver is filling in the cancellation (reason + optional attachments)
 const confirming = ref(null)
-const rejectionReason = ref("")
+const cancelReason = ref("")
+// Workflow action behind both "Cancel" buttons (on the way and at the loading location)
+const DRIVER_CANCEL = "Driver cancel"
 
 const request = computed(() => detail.value || props.modelValue || {})
 
@@ -287,8 +276,8 @@ const request = computed(() => detail.value || props.modelValue || {})
 // file in either section satisfies the requirement.
 const requiredAttachments = ref([])
 const otherAttachments = ref([])
-const rejectAttachments = ref([])
-const lists = { required: requiredAttachments, other: otherAttachments, reject: rejectAttachments }
+const cancelAttachments = ref([])
+const lists = { required: requiredAttachments, other: otherAttachments, cancel: cancelAttachments }
 
 const uploadingSection = ref(null)
 
@@ -298,14 +287,13 @@ const totalAttachments = computed(
 
 const can = (action) => (detail.value?.actions || []).includes(action)
 
-// Attachments are added once the driver accepted, and stay editable until the trip is created.
+// Attachments are added once the driver confirmed, and stay editable until the trip is created.
 const showAttachments = computed(() =>
-	["Accepted by driver", "Documents requested"].includes(request.value.workflow_state)
+	["Confirmed by driver", "Documents requested"].includes(request.value.workflow_state)
 )
 
 const WAITING_MESSAGES = {
 	"Documents requested": "Documents requested. Waiting for the documents and diesel to be prepared and the trip to start.",
-	"Rejected by driver": "You rejected this request. Waiting for the supervisor to confirm the cancellation.",
 	"Cancelled by driver": "You cancelled this request. Waiting for the supervisor to confirm the cancellation.",
 	"Trip created": "The trip has been created for this request.",
 	Cancelled: "This request was cancelled.",
@@ -347,10 +335,10 @@ watch(
 	async (name) => {
 		detail.value = null
 		confirming.value = null
-		rejectionReason.value = ""
+		cancelReason.value = ""
 		requiredAttachments.value = []
 		otherAttachments.value = []
-		rejectAttachments.value = []
+		cancelAttachments.value = []
 		if (!name) return
 
 		loadingDetail.value = true

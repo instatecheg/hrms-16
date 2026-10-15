@@ -1,7 +1,7 @@
 """Transportation Request steps for the driver in the mobile app.
 
-Go to Location / Arrived at Loading Location (with the phone's GPS), Accept,
-Reject (with a reason, attachments optional), Cancel (at the loading location)
+Go to Location / Arrived at Loading Location (with the phone's GPS), Confirm,
+Cancel on the way or at the loading location (reason required, attachments optional)
 and Request Documents (needs at least one attachment).
 The workflow itself (states, who may press what) is the "Transportation Request"
 Workflow; these methods only add what the driver reports on each step.
@@ -18,7 +18,8 @@ LOCATION_FIELDS = {
 	"Head to loading location": "driver_start_location",
 	"Confirm arrival at loading": "loading_arrival_location",
 }
-DRIVER_ACTIONS = {*LOCATION_FIELDS, "Accept", "Reject", "Cancel request", "Request documents"}
+DRIVER_CANCEL_ACTION = "Driver cancel"
+DRIVER_ACTIONS = {*LOCATION_FIELDS, "Confirm", DRIVER_CANCEL_ACTION, "Request documents"}
 
 DETAIL_FIELDS = (
 	"customer",
@@ -106,10 +107,10 @@ def apply_driver_transportation_request_action(name=None, action=None, latitude=
 		frappe.db.set_value(
 			DOCTYPE, doc.name, location_field, f"https://maps.google.com/?q={lat},{lng}", update_modified=False
 		)
-	elif action == "Reject":
+	elif action == DRIVER_CANCEL_ACTION:
 		reason = str(reason or "").strip()
 		if not reason:
-			frappe.throw(_("Please enter the reason for rejecting this request."))
+			frappe.throw(_("Please enter the reason for cancelling this request."))
 		frappe.db.set_value(DOCTYPE, doc.name, "rejection_reason", reason, update_modified=False)
 	elif action == "Request documents" and not _attachments(doc.name):
 		frappe.throw(_("Add at least one attachment before requesting the documents."))

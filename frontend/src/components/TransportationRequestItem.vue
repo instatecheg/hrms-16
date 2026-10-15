@@ -7,8 +7,8 @@
 					{{ props.doc.customer_name || props.doc.customer }}
 				</div>
 				<div class="text-xs font-normal text-gray-500">
-					<span v-if="props.doc.route">{{ props.doc.route }}</span>
-					<span v-if="props.doc.route"> &middot; </span>
+					<span v-if="fromTo">{{ fromTo }}</span>
+					<span v-if="fromTo"> &middot; </span>
 					<span>{{ formatTimestamp(props.doc.departure_time) }}</span>
 				</div>
 			</div>
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { inject } from "vue"
+import { computed, inject } from "vue"
 import { FeatherIcon, Badge } from "frappe-ui"
 
 import ListItem from "@/components/ListItem.vue"
@@ -41,4 +41,7 @@ const props = defineProps({
 		type: Object,
 	},
 })
+
+// "From → To" of the request (either side may be empty)
+const fromTo = computed(() => [props.doc.from, props.doc.to].filter(Boolean).join(" → "))
 </script>

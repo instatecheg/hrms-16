@@ -48,12 +48,12 @@ async function fetchRequests(extraFilters = {}) {
 }
 
 // Workflow states in which the driver still has a step to do
-// (Go to Location, Arrived at Loading Location, Accept / Reject, Request Documents).
+// (Go to Location, Arrived at Loading Location, Confirm / Cancel, Request Documents).
 export const DRIVER_ACTIVE_STATES = [
 	"Sent to driver",
 	"Driver heading to loading",
 	"Driver at loading location",
-	"Accepted by driver",
+	"Confirmed by driver",
 ]
 
 // "Requests" panel on Home: only the ones still waiting on the driver,

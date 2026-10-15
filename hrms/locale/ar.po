@@ -12117,3 +12117,15 @@ msgstr "رجوع"
 
 msgid "Documents requested. Waiting for the documents and diesel to be prepared and the trip to start."
 msgstr "تم طلب المستندات. بانتظار تجهيز المستندات والديزل وبدء الرحلة."
+
+msgid "Confirm"
+msgstr "تأكيد"
+
+msgid "Cancellation Reason"
+msgstr "سبب الإلغاء"
+
+msgid "Why are you cancelling this request?"
+msgstr "لماذا تلغي هذا الطلب؟"
+
+msgid "Confirmed by driver"
+msgstr "أكّد السائق الطلب"
