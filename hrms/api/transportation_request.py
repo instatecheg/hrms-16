@@ -63,13 +63,18 @@ def _get_request(name):
 
 
 def _attachments(name):
-	return frappe.get_all(
+	"""Every file attached to the request (any state); only the user who attached a file can remove it."""
+	files = frappe.get_all(
 		"File",
 		filters={"attached_to_doctype": DOCTYPE, "attached_to_name": name},
 		fields=["name", "file_name", "file_url", "is_private", "file_size", "creation", "owner"],
 		order_by="creation desc",
 		limit_page_length=0,
 	)
+	user = frappe.session.user
+	for row in files:
+		row["can_delete"] = user == "Administrator" or row.get("owner") == user
+	return files
 
 
 def _detail(doc):

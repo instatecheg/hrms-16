@@ -36,6 +36,7 @@
 							{{ file.file_name || file.name }}
 						</span>
 						<FeatherIcon
+							v-if="canDelete(file)"
 							name="x"
 							class="h-4 w-4 cursor-pointer text-gray-700"
 							@click="() => confirmDeleteAttachment(file)"
@@ -99,6 +100,11 @@ const props = defineProps({
 	modelValue: {
 		type: Object,
 		required: true,
+	},
+	// Optional: which files show the delete button (default: all of them)
+	canDelete: {
+		type: Function,
+		default: () => true,
 	},
 })
 let showDialog = ref(false)

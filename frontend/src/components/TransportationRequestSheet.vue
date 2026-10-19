@@ -75,6 +75,7 @@
 							<FileUploaderView
 								v-else
 								v-model="requiredAttachments"
+								:canDelete="ownFile"
 								@handleFileSelect="(e) => handleFileSelect(e, 'required')"
 								@handleFileDelete="(file) => handleFileDelete(file, 'required')"
 							/>
@@ -98,11 +99,31 @@
 							<FileUploaderView
 								v-else
 								v-model="otherAttachments"
+								:canDelete="ownFile"
 								@handleFileSelect="(e) => handleFileSelect(e, 'other')"
 								@handleFileDelete="(file) => handleFileDelete(file, 'other')"
 							/>
 						</div>
 					</template>
+
+					<!-- Any other state: every file attached to the request (read only) -->
+					<div
+						v-if="!showAttachments && confirming !== 'cancel' && requiredAttachments.length"
+						class="flex flex-col gap-2"
+					>
+						<label class="text-sm text-gray-600">{{ __("Attachments") }}</label>
+						<a
+							v-for="file in requiredAttachments"
+							:key="file.name"
+							:href="file.file_url"
+							target="_blank"
+							rel="noopener"
+							class="flex flex-row items-center gap-2 rounded bg-gray-100 p-2 text-sm text-gray-700"
+						>
+							<FeatherIcon name="paperclip" class="h-4 w-4 shrink-0 text-gray-500" />
+							<span class="grow break-all">{{ file.file_name || file.name }}</span>
+						</a>
+					</div>
 
 					<!-- Cancel (on the way or at the loading location): reason required, attachments optional -->
 					<div v-if="confirming === 'cancel'" class="flex flex-col gap-2">
@@ -128,6 +149,7 @@
 						<FileUploaderView
 							v-else
 							v-model="cancelAttachments"
+							:canDelete="ownFile"
 							@handleFileSelect="(e) => handleFileSelect(e, 'cancel')"
 							@handleFileDelete="(file) => handleFileDelete(file, 'cancel')"
 						/>
@@ -286,6 +308,10 @@ const totalAttachments = computed(
 )
 
 const can = (action) => (detail.value?.actions || []).includes(action)
+
+// Only the person who attached a file can remove it (the server decides: can_delete).
+// A file just uploaded in this session is the driver's own.
+const ownFile = (file) => file.can_delete !== false
 
 // Attachments are added once the driver confirmed, and stay editable until the trip is created.
 const showAttachments = computed(() =>
