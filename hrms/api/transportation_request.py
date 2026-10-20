@@ -2,7 +2,7 @@
 
 Go to Location / Arrived at Loading Location (with the phone's GPS), Confirm,
 Cancel on the way or at the loading location (reason required, attachments optional)
-and Request Documents (needs at least one attachment).
+and Request Documents (needs at least one attachment added after confirming).
 The workflow itself (states, who may press what) is the "Transportation Request"
 Workflow; these methods only add what the driver reports on each step.
 """
@@ -10,6 +10,7 @@ Workflow; these methods only add what the driver reports on each step.
 import frappe
 from frappe import _
 from frappe.model.workflow import apply_workflow, get_transitions
+from frappe.utils import get_datetime
 
 DOCTYPE = "Transportation Request"
 
@@ -62,18 +63,33 @@ def _get_request(name):
 	return doc
 
 
-def _attachments(name):
-	"""Every file attached to the request (any state); only the user who attached a file can remove it."""
+def _state_since(doc):
+	"""When the request entered its current workflow state: the last "Workflow" comment that
+	apply_workflow adds on every transition (otherwise the request's creation)."""
+	since = frappe.db.get_value(
+		"Comment",
+		{"reference_doctype": DOCTYPE, "reference_name": doc.name, "comment_type": "Workflow"},
+		"creation",
+		order_by="creation desc",
+	)
+	return since or doc.creation
+
+
+def _attachments(doc):
+	"""Every file attached to the request (any state); only the user who attached a file can remove it.
+	``current_step``: attached since the request entered its current state."""
 	files = frappe.get_all(
 		"File",
-		filters={"attached_to_doctype": DOCTYPE, "attached_to_name": name},
+		filters={"attached_to_doctype": DOCTYPE, "attached_to_name": doc.name},
 		fields=["name", "file_name", "file_url", "is_private", "file_size", "creation", "owner"],
 		order_by="creation desc",
 		limit_page_length=0,
 	)
 	user = frappe.session.user
+	since = get_datetime(_state_since(doc))
 	for row in files:
 		row["can_delete"] = user == "Administrator" or row.get("owner") == user
+		row["current_step"] = get_datetime(row.get("creation")) >= since
 	return files
 
 
@@ -85,7 +101,7 @@ def _detail(doc):
 		"workflow_state": doc.get("workflow_state") or "",
 		**{fieldname: doc.get(fieldname) for fieldname in DETAIL_FIELDS},
 		"actions": actions,
-		"attachments": _attachments(doc.name),
+		"attachments": _attachments(doc),
 	}
 
 
@@ -117,7 +133,8 @@ def apply_driver_transportation_request_action(name=None, action=None, latitude=
 		if not reason:
 			frappe.throw(_("Please enter the reason for cancelling this request."))
 		frappe.db.set_value(DOCTYPE, doc.name, "rejection_reason", reason, update_modified=False)
-	elif action == "Request documents" and not _attachments(doc.name):
+	elif action == "Request documents" and not any(f["current_step"] for f in _attachments(doc)):
+		# Files attached before the driver confirmed (e.g. on an earlier step) do not count.
 		frappe.throw(_("Add at least one attachment before requesting the documents."))
 
 	apply_workflow(doc, action)

@@ -62,6 +62,22 @@
 
 					<!-- Confirmed: attachments, then "Request Documents" -->
 					<template v-if="showAttachments">
+						<!-- Files from earlier steps: listed, but they do not count for "Request Documents" -->
+						<div v-if="previousAttachments.length" class="flex flex-col gap-2">
+							<label class="text-sm text-gray-600">{{ __("Previous Attachments") }}</label>
+							<a
+								v-for="file in previousAttachments"
+								:key="file.name"
+								:href="file.file_url"
+								target="_blank"
+								rel="noopener"
+								class="flex flex-row items-center gap-2 rounded bg-gray-100 p-2 text-sm text-gray-700"
+							>
+								<FeatherIcon name="paperclip" class="h-4 w-4 shrink-0 text-gray-500" />
+								<span class="grow break-all">{{ file.file_name || file.name }}</span>
+							</a>
+						</div>
+
 						<div class="flex flex-col gap-2">
 							<label class="text-sm text-gray-600">{{ __("Required Attachments") }} *</label>
 
@@ -296,11 +312,13 @@ const request = computed(() => detail.value || props.modelValue || {})
 
 // Two sections in the UI, but all files are attached to the request itself
 // and aren't tagged per section on the server — so after reopening, every
-// file already on the request is listed under "Required Attachments", and a
+// file added in this step is listed under "Required Attachments", and a
 // file in either section satisfies the requirement.
 const requiredAttachments = ref([])
 const otherAttachments = ref([])
 const cancelAttachments = ref([])
+// "Confirmed by driver": files attached before the driver confirmed (read only, not counted)
+const previousAttachments = ref([])
 const lists = { required: requiredAttachments, other: otherAttachments, cancel: cancelAttachments }
 
 const uploadingSection = ref(null)
@@ -353,7 +371,11 @@ const detailRows = computed(() => {
 
 function setDetail(data) {
 	detail.value = data
-	requiredAttachments.value = (data?.attachments || []).map((f) => ({ ...f, uploaded: true }))
+	const files = (data?.attachments || []).map((f) => ({ ...f, uploaded: true }))
+	// Request Documents needs a file added in this step: older files are only listed.
+	const splitOld = data?.workflow_state === "Confirmed by driver"
+	requiredAttachments.value = splitOld ? files.filter((f) => f.current_step) : files
+	previousAttachments.value = splitOld ? files.filter((f) => !f.current_step) : []
 	otherAttachments.value = []
 }
 
@@ -365,6 +387,7 @@ watch(
 		confirming.value = null
 		cancelReason.value = ""
 		requiredAttachments.value = []
+		previousAttachments.value = []
 		otherAttachments.value = []
 		cancelAttachments.value = []
 		if (!name) return

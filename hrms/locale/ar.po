@@ -12073,6 +12073,9 @@ msgstr "المرفقات المطلوبة"
 msgid "Additional Attachments"
 msgstr "مرفقات إضافية"
 
+msgid "Previous Attachments"
+msgstr "المرفقات السابقة"
+
 msgid "At least one attachment is required."
 msgstr "مطلوب مرفق واحد على الأقل."
 
@@ -12198,3 +12201,15 @@ msgstr "تمت المراجعة"
 msgctxt "Delivery Trip"
 msgid "Resume"
 msgstr "استئناف"
+
+msgid "Attachments"
+msgstr "المرفقات"
+
+msgid "Navigate"
+msgstr "التوجيه"
+
+msgid "The customer location is missing. Request it from the supervisor; you can start the trip once it is added."
+msgstr "موقع العميل غير موجود. اطلبه من المشرف؛ يمكنك بدء الرحلة بعد إضافته."
+
+msgid "The trip has no customer location yet. Request it from the supervisor first."
+msgstr "لا يوجد موقع للعميل في الرحلة بعد. اطلبه من المشرف أولاً."

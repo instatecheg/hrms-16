@@ -39,8 +39,8 @@
 						rel="noopener"
 						class="flex flex-row items-center gap-1 text-base font-medium text-[var(--color-primary)] underline"
 					>
-						<FeatherIcon name="map-pin" class="h-4 w-4" />
-						{{ __("Open in Maps") }}
+						<FeatherIcon name="navigation" class="h-4 w-4" />
+						{{ __("Navigate") }}
 					</a>
 					<div v-else class="text-gray-800 text-base font-medium text-end whitespace-pre-line">
 						{{ row.value }}
@@ -52,12 +52,35 @@
 					<div>{{ detail.stop_reason }}</div>
 				</div>
 
+				<!-- Files already on the trip (the request's attachments and earlier steps), read only -->
+				<div v-if="savedAttachments.length" class="w-full flex flex-col gap-2">
+					<label class="text-sm text-gray-600">{{ __("Attachments") }}</label>
+					<a
+						v-for="file in savedAttachments"
+						:key="file.name"
+						:href="file.file_url"
+						target="_blank"
+						rel="noopener"
+						class="flex flex-row items-center gap-2 rounded bg-gray-100 p-2 text-sm text-gray-700"
+					>
+						<FeatherIcon name="paperclip" class="h-4 w-4 shrink-0 text-gray-500" />
+						<span class="grow break-all">{{ file.file_name || file.name }}</span>
+					</a>
+				</div>
+
+				<div
+					v-if="detail?.needs_customer_location"
+					class="w-full rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"
+				>
+					{{ __("The customer location is missing. Request it from the supervisor; you can start the trip once it is added.") }}
+				</div>
+
 				<div v-if="locationStatus" class="text-xs text-[var(--color-blue-muted)] text-center">
 					{{ locationStatus }}
 				</div>
 
 				<!-- Optional attachments, shown with the Start button -->
-				<div v-if="can('start')" class="w-full flex flex-col gap-2 mt-2">
+				<div v-if="can('start') || detail?.needs_customer_location" class="w-full flex flex-col gap-2 mt-2">
 					<label class="text-sm text-gray-600">{{ __("Attachments") }}</label>
 					<div class="flex flex-row gap-2 items-center justify-center p-5" v-if="uploading === 'start'">
 						<LoadingIndicator class="w-3 h-3 text-gray-800" />
@@ -72,7 +95,7 @@
 					/>
 				</div>
 
-				<!-- Stop: the reason is required -->
+				<!-- Stop: the reason is required, attachments optional -->
 				<div v-if="showStopForm" class="w-full flex flex-col gap-2 mt-2">
 					<label class="text-sm text-gray-600">{{ __("Reason for Stop") }} *</label>
 					<textarea
@@ -80,6 +103,18 @@
 						rows="3"
 						class="w-full rounded border border-[var(--color-card-border)] text-sm p-2 text-gray-700"
 						:placeholder="__('Describe what happened...')"
+					/>
+					<label class="text-sm text-gray-600">{{ __("Attachments") }}</label>
+					<div class="flex flex-row gap-2 items-center justify-center p-5" v-if="uploading === 'stop'">
+						<LoadingIndicator class="w-3 h-3 text-gray-800" />
+						<span class="text-gray-900 text-sm">{{ __("Uploading...") }}</span>
+					</div>
+					<FileUploaderView
+						v-else
+						v-model="stopAttachments"
+						:canDelete="ownFile"
+						@handleFileSelect="(e) => uploadFiles(e, 'stop')"
+						@handleFileDelete="(file) => deleteFile(file, 'stop')"
 					/>
 				</div>
 
@@ -125,14 +160,27 @@
 		>
 			<template v-if="!showStopForm">
 				<Button
-					v-if="can('start')"
+					v-if="can('start') || detail?.needs_customer_location"
 					@click="runAction('start', { withLocation: true })"
 					:class="primaryButton"
 					variant="solid"
 					:loading="busy"
+					:disabled="!can('start') || !!uploading"
 				>
 					<template #prefix><FeatherIcon name="play" class="w-4" /></template>
 					{{ __("Start", null, "Delivery Trip") }}
+				</Button>
+
+				<!-- Draft without a customer location: ask the supervisor for it (Telegram) -->
+				<Button
+					v-if="can('request_customer_location')"
+					@click="runAction('request_customer_location')"
+					class="w-full py-5"
+					variant="outline"
+					:loading="busy"
+				>
+					<template #prefix><FeatherIcon name="map-pin" class="w-4" /></template>
+					{{ __("Request Customer Location") }}
 				</Button>
 
 				<div v-if="can('delivered') || can('stop')" class="flex flex-row gap-3">
@@ -180,23 +228,11 @@
 					<template #prefix><FeatherIcon name="check-circle" class="w-4" /></template>
 					{{ __("End", null, "Delivery Trip") }}
 				</Button>
-
-				<!-- After Start: ask the supervisor for the customer location (Telegram) -->
-				<Button
-					v-if="can('request_customer_location')"
-					@click="runAction('request_customer_location')"
-					class="w-full py-5"
-					variant="outline"
-					:loading="busy"
-				>
-					<template #prefix><FeatherIcon name="map-pin" class="w-4" /></template>
-					{{ __("Request Customer Location") }}
-				</Button>
 			</template>
 
 			<div v-else class="flex flex-row gap-3">
 				<Button
-					@click="showStopForm = false; stopReason = ''"
+					@click="showStopForm = false; stopReason = ''; stopAttachments = []"
 					class="w-full py-5"
 					variant="outline"
 					:disabled="busy"
@@ -208,7 +244,7 @@
 					class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
 					variant="solid"
 					:loading="busy"
-					:disabled="!stopReason.trim()"
+					:disabled="!stopReason.trim() || !!uploading"
 				>
 					<template #prefix><FeatherIcon name="alert-triangle" class="w-4" /></template>
 					{{ __("Confirm Stop") }}
@@ -254,12 +290,15 @@ const showStopForm = ref(false)
 const stopReason = ref("")
 const customerScale = ref("")
 const startAttachments = ref([])
+const stopAttachments = ref([])
 const proofAttachments = ref([])
 const uploading = ref(null)
 
 const { latitude, longitude, locationStatus, fetchLocation } = useTripLocation()
 
 const can = (action) => (detail.value?.actions || []).includes(action)
+// Files already on the trip when it was opened (copied from the request, or from earlier steps)
+const savedAttachments = computed(() => detail.value?.attachments || [])
 // Only the person who attached a file can remove it; a file just uploaded is the driver's own.
 const ownFile = (file) => file.can_delete !== false
 
@@ -296,6 +335,7 @@ const waitingMessage = computed(() => {
 function setDetail(data) {
 	detail.value = data
 	startAttachments.value = []
+	stopAttachments.value = []
 	proofAttachments.value = []
 }
 
@@ -308,6 +348,7 @@ watch(
 		stopReason.value = ""
 		customerScale.value = ""
 		startAttachments.value = []
+		stopAttachments.value = []
 		proofAttachments.value = []
 		if (!name) return
 		loading.value = true
@@ -373,7 +414,7 @@ async function runAction(action, { withLocation = false, ...args } = {}) {
 	}
 }
 
-const lists = { start: startAttachments, proof: proofAttachments }
+const lists = { start: startAttachments, stop: stopAttachments, proof: proofAttachments }
 
 async function uploadFiles(e, section) {
 	uploading.value = section

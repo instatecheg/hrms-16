@@ -113,13 +113,23 @@ TRIP_GPS_FIELDS = {
 	"delivered": ("lh_arrival_location", "arrival_location_latitude", "arrival_location_longitude"),
 }
 TRIP_NEXT_STATUS = {"start": "In Transit", "stop": "Stopped", "resume": "In Transit", "delivered": "Delivered", "end": "Ended"}
+# Before Start the trip needs its Customer Location: while it is empty the driver can only ask the
+# supervisor for it ("request_customer_location"); once it is filled, Start is allowed.
 TRIP_ACTIONS_BY_STATUS = {
-	"Draft": ["start"],
-	"Scheduled": ["start"],
-	"In Transit": ["delivered", "stop", "request_customer_location"],
-	"Stopped": ["resume", "request_customer_location"],
-	"Delivered": ["end", "request_customer_location"],
+	"Draft": ["start", "request_customer_location"],
+	"Scheduled": ["start", "request_customer_location"],
+	"In Transit": ["delivered", "stop"],
+	"Stopped": ["resume"],
+	"Delivered": ["end"],
 }
+
+
+def _trip_actions(doc):
+	if doc.docstatus != 0:
+		return []
+	actions = TRIP_ACTIONS_BY_STATUS.get(doc.get("status") or "Draft", [])
+	has_location = bool(str(doc.get("lh_customer_location") or "").strip())
+	return [a for a in actions if a != ("request_customer_location" if has_location else "start")]
 
 
 def _trip_for_driver(name):
@@ -175,7 +185,11 @@ def _trip_detail(doc):
 		"location": doc.get("lh_customer_location"),
 		"stop_reason": doc.get("stop_reason"),
 		"customer_scale": doc.get("lh_customer_first_weight"),
-		"actions": TRIP_ACTIONS_BY_STATUS.get(doc.get("status") or "Draft", []) if doc.docstatus == 0 else [],
+		"actions": _trip_actions(doc),
+		# Start is shown (disabled) until the supervisor adds the customer location.
+		"needs_customer_location": doc.docstatus == 0
+		and (doc.get("status") or "Draft") in ("Draft", "Scheduled")
+		and not str(doc.get("lh_customer_location") or "").strip(),
 		"attachments": _trip_attachments(doc.name),
 	}
 
@@ -191,7 +205,9 @@ def driver_trip_action(name=None, action=None, latitude=None, longitude=None, re
 	or ask the supervisor for the customer location."""
 	_ = frappe._
 	doc = _trip_for_driver(name)
-	allowed = _trip_detail(doc)["actions"]
+	allowed = _trip_actions(doc)
+	if action == "start" and "request_customer_location" in allowed:
+		frappe.throw(_("The trip has no customer location yet. Request it from the supervisor first."))
 	if action not in allowed:
 		frappe.throw(_("This step is not available for a trip that is {0}.").format(_(doc.get("status") or "Draft")))
 
@@ -231,6 +247,8 @@ def driver_trip_action(name=None, action=None, latitude=None, longitude=None, re
 		if not frappe.db.count("File", proof_filters):
 			frappe.throw(_("Attach the customer scale / delivery proof before ending the trip."))
 		values["lh_customer_first_weight"] = frappe.utils.flt(customer_scale)
+		# The dashboards take the customer scale as one reading (End Customer Scale = customer net).
+		values["lh_customer_net_weight"] = frappe.utils.flt(customer_scale)
 
 	for fieldname, value in values.items():
 		if doc.meta.has_field(fieldname):
