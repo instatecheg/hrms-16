@@ -10,27 +10,46 @@
 			<span class="text-[var(--color-primary)] font-bold text-lg text-center">
 				{{ trip.name }}
 			</span>
+			<Badge
+				variant="subtle"
+				:theme="tripStatusTheme(status)"
+				:label="__(status, null, 'Delivery Trip')"
+				size="md"
+			/>
 		</div>
 
-		<!-- Trip Summary -->
+		<!-- Trip details: same order as the request sheet; Location = the trip's Customer Location -->
 		<div class="w-full p-4 overflow-auto">
 			<div class="flex flex-col items-center justify-center gap-4">
+				<div v-if="loading" class="flex flex-row gap-2 items-center justify-center p-5">
+					<LoadingIndicator class="w-3 h-3 text-gray-800" />
+					<span class="text-gray-900 text-sm">{{ __("Loading...") }}</span>
+				</div>
+
 				<div
 					v-for="row in detailRows"
 					:key="row.label"
-					class="flex flex-row items-center justify-between w-full"
+					class="flex flex-row items-center justify-between w-full gap-3"
 				>
-					<div class="text-gray-600 text-base">{{ __(row.label) }}</div>
-					<div class="text-gray-800 text-base font-medium text-end">{{ row.value }}</div>
+					<div class="text-gray-600 text-base shrink-0">{{ __(row.label) }}</div>
+					<a
+						v-if="row.link"
+						:href="row.link"
+						target="_blank"
+						rel="noopener"
+						class="flex flex-row items-center gap-1 text-base font-medium text-[var(--color-primary)] underline"
+					>
+						<FeatherIcon name="map-pin" class="h-4 w-4" />
+						{{ __("Open in Maps") }}
+					</a>
+					<div v-else class="text-gray-800 text-base font-medium text-end whitespace-pre-line">
+						{{ row.value }}
+					</div>
 				</div>
 
-				<div class="flex flex-row items-center justify-between w-full">
-					<div class="text-gray-600 text-base">{{ __("Status") }}</div>
-					<span
-						class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-card-selected-bg)] text-[var(--color-primary)]"
-					>
-						{{ __(trip.status, null, "Delivery Trip") }}
-					</span>
+				<div v-if="status === 'Stopped' && detail?.stop_reason" class="w-full rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+					<div class="font-semibold">{{ __("Reason for Stop") }}</div>
+					<div>{{ detail.stop_reason }}</div>
 				</div>
 
 				<div v-if="locationStatus" class="text-xs text-[var(--color-blue-muted)] text-center">
@@ -38,28 +57,24 @@
 				</div>
 
 				<!-- Optional attachments, shown with the Start button -->
-				<div v-if="showStartForm" class="w-full flex flex-col gap-2 mt-2">
+				<div v-if="can('start')" class="w-full flex flex-col gap-2 mt-2">
 					<label class="text-sm text-gray-600">{{ __("Attachments") }}</label>
-
-					<div
-						class="flex flex-row gap-2 items-center justify-center p-5"
-						v-if="isStartUploading"
-					>
+					<div class="flex flex-row gap-2 items-center justify-center p-5" v-if="uploading === 'start'">
 						<LoadingIndicator class="w-3 h-3 text-gray-800" />
 						<span class="text-gray-900 text-sm">{{ __("Uploading...") }}</span>
 					</div>
-
 					<FileUploaderView
 						v-else
 						v-model="startAttachments"
-						@handleFileSelect="handleStartFileSelect"
-						@handleFileDelete="handleStartFileDelete"
+						:canDelete="ownFile"
+						@handleFileSelect="(e) => uploadFiles(e, 'start')"
+						@handleFileDelete="(file) => deleteFile(file, 'start')"
 					/>
 				</div>
 
-				<!-- Stop reason form -->
+				<!-- Stop: the reason is required -->
 				<div v-if="showStopForm" class="w-full flex flex-col gap-2 mt-2">
-					<label class="text-sm text-gray-600">{{ __("Reason for Stop") }}</label>
+					<label class="text-sm text-gray-600">{{ __("Reason for Stop") }} *</label>
 					<textarea
 						v-model="stopReason"
 						rows="3"
@@ -68,8 +83,8 @@
 					/>
 				</div>
 
-				<!-- End trip form: customer scale + delivery proof, both mandatory -->
-				<div v-if="showEndForm" class="w-full flex flex-col gap-2 mt-2">
+				<!-- End: customer scale + its attachment, both mandatory -->
+				<div v-if="can('end')" class="w-full flex flex-col gap-2 mt-2">
 					<div class="flex flex-col gap-2">
 						<label class="text-sm text-gray-600">{{ __("Customer Scale") }} *</label>
 						<input
@@ -79,126 +94,142 @@
 							:placeholder="__('Enter weight')"
 						/>
 					</div>
-
-					<div
-						class="flex flex-row gap-2 items-center justify-center p-5"
-						v-if="isFileUploading"
-					>
+					<div class="flex flex-row gap-2 items-center justify-center p-5" v-if="uploading === 'proof'">
 						<LoadingIndicator class="w-3 h-3 text-gray-800" />
 						<span class="text-gray-900 text-sm">{{ __("Uploading...") }}</span>
 					</div>
-
 					<FileUploaderView
 						v-else
 						v-model="proofAttachments"
-						@handleFileSelect="handleFileSelect"
-						@handleFileDelete="handleFileDelete"
+						:canDelete="ownFile"
+						@handleFileSelect="(e) => uploadFiles(e, 'proof')"
+						@handleFileDelete="(file) => deleteFile(file, 'proof')"
 					/>
-					<span class="text-xs text-gray-500">{{ __("Delivery Proof") }} *</span>
+					<span class="text-xs text-gray-500">{{ __("Customer scale attachment") }} *</span>
+				</div>
+
+				<!-- After End: say who the trip is waiting for -->
+				<div
+					v-if="waitingMessage"
+					class="w-full rounded-lg bg-[var(--color-card-selected-bg)] p-3 text-sm text-gray-700"
+				>
+					{{ waitingMessage }}
 				</div>
 			</div>
 		</div>
 
 		<!-- Actions -->
 		<div
-			v-if="trip.status === 'Draft'"
-			class="flex w-full flex-row items-center justify-between gap-3 sticky bottom-0 border-t z-[100] p-4"
+			v-if="detail && detail.actions.length"
+			class="flex w-full flex-col gap-3 sticky bottom-0 border-t z-[100] p-4"
 		>
-			<Button
-				@click="handleStartTrip"
-				class="w-full py-5 !bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
-				variant="solid"
-				:loading="isProcessing"
-			>
-				<template #prefix>
-					<FeatherIcon name="play" class="w-4" />
-				</template>
-				{{ __("Start", null, "Delivery Trip") }}
-			</Button>
-		</div>
+			<template v-if="!showStopForm">
+				<Button
+					v-if="can('start')"
+					@click="runAction('start', { withLocation: true })"
+					:class="primaryButton"
+					variant="solid"
+					:loading="busy"
+				>
+					<template #prefix><FeatherIcon name="play" class="w-4" /></template>
+					{{ __("Start", null, "Delivery Trip") }}
+				</Button>
 
-		<div
-			v-else-if="trip.status === 'In Transit' && !showStopForm"
-			class="flex w-full flex-row items-center justify-between gap-3 sticky bottom-0 border-t z-[100] p-4"
-		>
-			<Button
-				@click="handleDelivered"
-				class="w-full py-5 !bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
-				variant="solid"
-				:loading="isProcessing"
-			>
-				<template #prefix>
-					<FeatherIcon name="flag" class="w-4" />
-				</template>
-				{{ __("Delivered", null, "Delivery Trip") }}
-			</Button>
-			<Button
-				@click="showStopForm = true"
-				class="w-full py-5 !bg-red-50 hover:!bg-red-100 !text-red-600 !border !border-red-200"
-				variant="outline"
-			>
-				<template #prefix>
-					<FeatherIcon name="alert-triangle" class="w-4" />
-				</template>
-				{{ __("Stop", null, "Delivery Trip") }}
-			</Button>
-		</div>
+				<div v-if="can('delivered') || can('stop')" class="flex flex-row gap-3">
+					<Button
+						v-if="can('delivered')"
+						@click="runAction('delivered', { withLocation: true })"
+						:class="primaryButton"
+						variant="solid"
+						:loading="busy"
+					>
+						<template #prefix><FeatherIcon name="flag" class="w-4" /></template>
+						{{ __("Delivered", null, "Delivery Trip") }}
+					</Button>
+					<Button
+						v-if="can('stop')"
+						@click="showStopForm = true"
+						class="w-full py-5 !bg-red-50 hover:!bg-red-100 !text-red-600 !border !border-red-200"
+						variant="outline"
+						:disabled="busy"
+					>
+						<template #prefix><FeatherIcon name="alert-triangle" class="w-4" /></template>
+						{{ __("Stop", null, "Delivery Trip") }}
+					</Button>
+				</div>
 
-		<div
-			v-else-if="trip.status === 'In Transit' && showStopForm"
-			class="flex w-full flex-row items-center justify-between gap-3 sticky bottom-0 border-t z-[100] p-4"
-		>
-			<Button
-				@click="showStopForm = false; stopReason = ''"
-				class="w-full py-5"
-				variant="outline"
-				:disabled="isProcessing"
-			>
-				{{ __("Cancel") }}
-			</Button>
-			<Button
-				@click="handleStop"
-				class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
-				variant="solid"
-				:loading="isProcessing"
-			>
-				<template #prefix>
-					<FeatherIcon name="alert-triangle" class="w-4" />
-				</template>
-				{{ __("Confirm Stop") }}
-			</Button>
-		</div>
+				<Button
+					v-if="can('resume')"
+					@click="runAction('resume', { withLocation: true })"
+					:class="primaryButton"
+					variant="solid"
+					:loading="busy"
+				>
+					<template #prefix><FeatherIcon name="play-circle" class="w-4" /></template>
+					{{ __("Resume", null, "Delivery Trip") }}
+				</Button>
 
-		<div
-			v-else-if="trip.status === 'Delivered'"
-			class="flex w-full flex-row items-center justify-between gap-3 sticky bottom-0 border-t z-[100] p-4"
-		>
-			<Button
-				@click="handleEnd"
-				class="w-full py-5 !bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
-				variant="solid"
-				:loading="isProcessing"
-				:disabled="!customerScale || !proofAttachments.length"
-			>
-				<template #prefix>
-					<FeatherIcon name="check-circle" class="w-4" />
-				</template>
-				{{ __("End", null, "Delivery Trip") }}
-			</Button>
+				<Button
+					v-if="can('end')"
+					@click="runAction('end', { customer_scale: customerScale })"
+					:class="primaryButton"
+					variant="solid"
+					:loading="busy"
+					:disabled="!customerScale || !proofAttachments.length || !!uploading"
+				>
+					<template #prefix><FeatherIcon name="check-circle" class="w-4" /></template>
+					{{ __("End", null, "Delivery Trip") }}
+				</Button>
+
+				<!-- After Start: ask the supervisor for the customer location (Telegram) -->
+				<Button
+					v-if="can('request_customer_location')"
+					@click="runAction('request_customer_location')"
+					class="w-full py-5"
+					variant="outline"
+					:loading="busy"
+				>
+					<template #prefix><FeatherIcon name="map-pin" class="w-4" /></template>
+					{{ __("Request Customer Location") }}
+				</Button>
+			</template>
+
+			<div v-else class="flex flex-row gap-3">
+				<Button
+					@click="showStopForm = false; stopReason = ''"
+					class="w-full py-5"
+					variant="outline"
+					:disabled="busy"
+				>
+					{{ __("Back") }}
+				</Button>
+				<Button
+					@click="runAction('stop', { withLocation: true, reason: stopReason.trim() })"
+					class="w-full py-5 !bg-red-600 hover:!bg-red-700 !text-white"
+					variant="solid"
+					:loading="busy"
+					:disabled="!stopReason.trim()"
+				>
+					<template #prefix><FeatherIcon name="alert-triangle" class="w-4" /></template>
+					{{ __("Confirm Stop") }}
+				</Button>
+			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
 import { ref, computed, watch, inject } from "vue"
-import { FeatherIcon, LoadingIndicator, toast } from "frappe-ui"
+import { Badge, FeatherIcon, LoadingIndicator, toast } from "frappe-ui"
 
 import FileUploaderView from "@/components/FileUploaderView.vue"
 import { FileAttachment } from "@/composables"
 import { useTripLocation } from "@/composables/useTripLocation"
-import { startTrip, markDelivered, markAllStopsVisited, stopTrip, completeTrip } from "@/data/deliveryTrips"
+import { getDriverTrip, driverTripAction } from "@/data/deliveryTrips"
+import { tripStatusTheme } from "@/utils/statusColors"
 
 const __ = inject("$translate")
+const dayjs = inject("$dayjs")
 
 const props = defineProps({
 	modelValue: {
@@ -209,96 +240,151 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue", "tripUpdated"])
 
+const primaryButton =
+	"w-full py-5 !bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
+
 const trip = computed(() => props.modelValue)
-const isProcessing = ref(false)
+// Full trip from the server: details, the driver's next buttons and the attachments.
+const detail = ref(null)
+const loading = ref(false)
+const busy = ref(false)
+const status = computed(() => detail.value?.status || trip.value?.status || "Draft")
 
 const showStopForm = ref(false)
 const stopReason = ref("")
-
-const showEndForm = computed(() => trip.value?.status === "Delivered")
 const customerScale = ref("")
-const proofAttachments = ref([])
-const isFileUploading = ref(false)
-
-// optional attachments added before pressing Start (not mandatory)
-const showStartForm = computed(() => trip.value?.status === "Draft")
 const startAttachments = ref([])
-const isStartUploading = ref(false)
+const proofAttachments = ref([])
+const uploading = ref(null)
 
-// the popup component is reused for every trip, so clear the lists when a
-// different trip is opened (otherwise trip A's files would still show for
-// trip B — and could satisfy B's mandatory proof check)
-watch(
-	() => trip.value?.name,
-	() => {
-		startAttachments.value = []
-		proofAttachments.value = []
-	}
-)
+const { latitude, longitude, locationStatus, fetchLocation } = useTripLocation()
 
-// fetchLocation() (capturing the driver's current GPS position) is kept in
-// use — only the geofence *comparison* (validateLocation) is disabled below,
-// per request, so the distance-check logic stays intact for future use.
-const { locationStatus, fetchLocation, validateLocation } = useTripLocation()
+const can = (action) => (detail.value?.actions || []).includes(action)
+// Only the person who attached a file can remove it; a file just uploaded is the driver's own.
+const ownFile = (file) => file.can_delete !== false
 
-// labels are translated at render time via __(row.label); listed here so they get extracted:
-// __("Destination"), __("Location"), __("Departure Time"), __("Customer"), __("Vehicle"), __("Driver")
+// Shown in this order: customer name, customer info, departure date / time, from, to, vehicle,
+// driver, location (the trip's Customer Location, opens in Maps).
 const detailRows = computed(() => {
-	if (!trip.value) return []
+	const d = detail.value || {}
+	const departure = d.departure_time ? dayjs(d.departure_time) : null
 	return [
-		{ label: "Destination", value: trip.value.lh_destination_city },
-		{ label: "Location", value: trip.value.lh_source_city },
-		{ label: "Departure Time", value: trip.value.departure_time },
-		{ label: "Customer", value: trip.value.lh_customer },
-		{ label: "Vehicle", value: trip.value.vehicle },
-		{ label: "Driver", value: trip.value.driver_name },
+		{ label: "Customer Name", value: d.customer_name },
+		{ label: "Customer Info", value: d.customer_info },
+		{ label: "Departure Date", value: departure ? departure.format("D MMM YYYY") : "" },
+		{ label: "Departure Time", value: departure ? departure.format("hh:mm a") : "" },
+		{ label: "From", value: d.from },
+		{ label: "To", value: d.to },
+		{ label: "Vehicle", value: d.vehicle },
+		{ label: "Driver", value: d.driver_name || d.driver },
+		{ label: "Location", value: d.location, link: d.location },
 	].filter((row) => row.value)
 })
 
-// mirrors the upload flow used in FormView.vue for Expense Claim attachments,
-// so preview/delete behave the same way (and actually work) here too
-const handleFileSelect = (e) => {
-	uploadAllAttachments(trip.value.name, [...e.target.files])
+const WAITING_MESSAGES = {
+	Ended: "Trip ended. Waiting for the supervisor to review it.",
+	Reviewed: "Reviewed by the supervisor. Waiting for the accounts manager to complete it.",
+	Completed: "This trip is completed.",
+	Cancelled: "This trip was cancelled.",
+}
+const waitingMessage = computed(() => {
+	if (loading.value || !detail.value || detail.value.actions.length) return ""
+	const message = WAITING_MESSAGES[status.value]
+	return message ? __(message) : ""
+})
+
+function setDetail(data) {
+	detail.value = data
+	startAttachments.value = []
+	proofAttachments.value = []
 }
 
-const handleFileDelete = async (fileObj) => {
-	if (fileObj.uploaded) {
-		const fileAttachment = new FileAttachment(fileObj)
-		await fileAttachment.delete()
-		proofAttachments.value = proofAttachments.value.filter(
-			(file) => file.name !== fileObj.name
-		)
-	} else {
-		proofAttachments.value = proofAttachments.value.filter(
-			(file) => file.name !== fileObj.name
-		)
+// the popup is reused for every trip: reload when a different trip is opened
+watch(
+	() => trip.value?.name,
+	async (name) => {
+		detail.value = null
+		showStopForm.value = false
+		stopReason.value = ""
+		customerScale.value = ""
+		startAttachments.value = []
+		proofAttachments.value = []
+		if (!name) return
+		loading.value = true
+		try {
+			setDetail(await getDriverTrip(name))
+		} catch (err) {
+			showError(err, __("Could not open {0}", [name]))
+		} finally {
+			loading.value = false
+		}
+	},
+	{ immediate: true }
+)
+
+function showError(err, fallback) {
+	toast({
+		title: __("Error"),
+		text: err?.messages?.[0] || err?.message || fallback || __("Something went wrong."),
+		icon: "alert-circle",
+		position: "bottom-center",
+	})
+}
+
+const SUCCESS = {
+	start: "Trip started successfully!",
+	stop: "Stop reason recorded.",
+	resume: "Trip resumed.",
+	delivered: "Trip marked as delivered!",
+	end: "Trip ended. The supervisor will review it.",
+	request_customer_location: "The supervisor was asked for the customer location.",
+}
+
+// Start / Stop / Resume / Delivered send where the driver is now (saved as a map link).
+async function runAction(action, { withLocation = false, ...args } = {}) {
+	busy.value = true
+	try {
+		if (withLocation) {
+			try {
+				await fetchLocation()
+			} catch {
+				return // fetchLocation already told the driver what went wrong
+			}
+			args.latitude = latitude.value
+			args.longitude = longitude.value
+		}
+		const updated = await driverTripAction(trip.value.name, action, args)
+		setDetail(updated)
+		showStopForm.value = false
+		stopReason.value = ""
+		trip.value.status = updated.status
+		emit("tripUpdated", trip.value)
+		toast({
+			title: __("Success"),
+			text: __(SUCCESS[action]),
+			icon: "check-circle",
+			position: "bottom-center",
+			iconClasses: "text-green-500",
+		})
+	} catch (err) {
+		showError(err)
+	} finally {
+		busy.value = false
 	}
 }
 
-const handleStartFileSelect = (e) => {
-	uploadStartAttachments(trip.value.name, [...e.target.files])
-}
+const lists = { start: startAttachments, proof: proofAttachments }
 
-const handleStartFileDelete = async (fileObj) => {
-	if (fileObj.uploaded) {
-		const fileAttachment = new FileAttachment(fileObj)
-		await fileAttachment.delete()
-	}
-	startAttachments.value = startAttachments.value.filter((file) => file.name !== fileObj.name)
-}
-
-async function uploadStartAttachments(documentName, files) {
-	isStartUploading.value = true
-
+async function uploadFiles(e, section) {
+	uploading.value = section
 	const results = await Promise.allSettled(
-		files.map((file) =>
-			new FileAttachment(file).upload("Delivery Trip", documentName, "").then((fileDoc) => {
+		[...e.target.files].map((file) =>
+			new FileAttachment(file).upload("Delivery Trip", trip.value.name, "").then((fileDoc) => {
 				fileDoc.uploaded = true
-				startAttachments.value.push(fileDoc)
+				lists[section].value.push(fileDoc)
 			})
 		)
 	)
-
 	if (results.some((r) => r.status === "rejected")) {
 		toast({
 			title: __("Error"),
@@ -307,158 +393,13 @@ async function uploadStartAttachments(documentName, files) {
 			position: "bottom-center",
 		})
 	}
-	isStartUploading.value = false
+	uploading.value = null
 }
 
-async function uploadAllAttachments(documentName, attachments) {
-	isFileUploading.value = true
-
-	const uploadPromises = attachments.map((attachment) => {
-		const fileAttachment = new FileAttachment(attachment)
-		return fileAttachment.upload("Delivery Trip", documentName, "").then((fileDoc) => {
-			fileDoc.uploaded = true
-			proofAttachments.value.push(fileDoc)
-		})
-	})
-
-	await Promise.allSettled(uploadPromises)
-	isFileUploading.value = false
-}
-
-async function handleStartTrip() {
-	isProcessing.value = true
-	try {
-		// Location comparison disabled — kept here (commented) for future use:
-		// const canStart = await validateLocation(trip.value.lh_source_map_url)
-		// if (!canStart) return
-
-		console.log("[DEBUG] handleStartTrip: requesting location...")
-		const position = await fetchLocation()
-		console.log("[DEBUG] handleStartTrip: got location", position?.coords)
-
-		const result = await startTrip(trip.value.name, {
-			latitude: position.coords.latitude,
-			longitude: position.coords.longitude,
-		})
-		console.log("[DEBUG] handleStartTrip: startTrip() returned", result)
-
-		trip.value.status = "In Transit"
-		emit("tripUpdated", trip.value)
-
-		toast({
-			title: __("Success"),
-			text: __("Trip started successfully!"),
-			icon: "check-circle",
-			position: "bottom-center",
-			iconClasses: "text-green-500",
-		})
-	} catch (err) {
-		console.error("[DEBUG] handleStartTrip failed:", err)
-		toast({
-			title: __("Error"),
-			text: err?.messages?.[0] || __("Could not start trip."),
-			icon: "alert-circle",
-			position: "bottom-center",
-		})
-	} finally {
-		isProcessing.value = false
+async function deleteFile(fileObj, section) {
+	if (fileObj.uploaded) {
+		await new FileAttachment(fileObj).delete()
 	}
-}
-
-async function handleDelivered() {
-	isProcessing.value = true
-	try {
-		// Location comparison disabled — kept here (commented) for future use:
-		// const canDeliver = await validateLocation(trip.value.lh_destination_map_url)
-		// if (!canDeliver) return
-
-		const position = await fetchLocation()
-
-		await markDelivered(trip.value.name, {
-			latitude: position.coords.latitude,
-			longitude: position.coords.longitude,
-		})
-		await markAllStopsVisited(trip.value.name)
-		trip.value.status = "Delivered"
-		emit("tripUpdated", trip.value)
-
-		toast({
-			title: __("Success"),
-			text: __("Trip marked as delivered!"),
-			icon: "check-circle",
-			position: "bottom-center",
-			iconClasses: "text-green-500",
-		})
-	} finally {
-		isProcessing.value = false
-	}
-}
-
-async function handleStop() {
-	if (!stopReason.value.trim()) {
-		toast({
-			title: __("Reason Required"),
-			text: __("Please describe what happened before confirming."),
-			icon: "alert-circle",
-			position: "bottom-center",
-		})
-		return
-	}
-
-	isProcessing.value = true
-	try {
-		const position = await fetchLocation()
-
-		await stopTrip(trip.value.name, stopReason.value.trim(), {
-			latitude: position.coords.latitude,
-			longitude: position.coords.longitude,
-		})
-		trip.value.status = "Stopped"
-		trip.value.stop_reason = stopReason.value.trim()
-		emit("tripUpdated", trip.value)
-
-		showStopForm.value = false
-		stopReason.value = ""
-
-		toast({
-			title: __("Trip Stopped"),
-			text: __("Stop reason recorded."),
-			icon: "alert-triangle",
-			position: "bottom-center",
-			iconClasses: "text-red-500",
-		})
-	} finally {
-		isProcessing.value = false
-	}
-}
-
-async function handleEnd() {
-	if (!customerScale.value || !proofAttachments.value.length) {
-		toast({
-			title: __("Missing Information"),
-			text: __("Customer scale and delivery proof are both required."),
-			icon: "alert-circle",
-			position: "bottom-center",
-		})
-		return
-	}
-
-	isProcessing.value = true
-	try {
-		await completeTrip(trip.value.name, customerScale.value)
-		trip.value.status = "Completed"
-		trip.value.lh_customer_first_weight = customerScale.value
-		emit("tripUpdated", trip.value)
-
-		toast({
-			title: __("Success"),
-			text: __("Trip completed successfully!"),
-			icon: "check-circle",
-			position: "bottom-center",
-			iconClasses: "text-green-500",
-		})
-	} finally {
-		isProcessing.value = false
-	}
+	lists[section].value = lists[section].value.filter((file) => file.name !== fileObj.name)
 }
 </script>

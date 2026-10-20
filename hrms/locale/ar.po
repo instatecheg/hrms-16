@@ -12129,3 +12129,72 @@ msgstr "لماذا تلغي هذا الطلب؟"
 
 msgid "Confirmed by driver"
 msgstr "أكّد السائق الطلب"
+
+msgid "Request Customer Location"
+msgstr "طلب موقع العميل"
+
+msgid "Customer scale attachment"
+msgstr "مرفق ميزان العميل"
+
+msgid "Trip ended. Waiting for the supervisor to review it."
+msgstr "انتهت الرحلة. بانتظار مراجعة المشرف."
+
+msgid "Reviewed by the supervisor. Waiting for the accounts manager to complete it."
+msgstr "راجعها المشرف. بانتظار مدير الحسابات لإكمالها."
+
+msgid "This trip is completed."
+msgstr "هذه الرحلة مكتملة."
+
+msgid "This trip was cancelled."
+msgstr "تم إلغاء هذه الرحلة."
+
+msgid "Trip resumed."
+msgstr "تم استئناف الرحلة."
+
+msgid "Trip ended. The supervisor will review it."
+msgstr "انتهت الرحلة. سيراجعها المشرف."
+
+msgid "The supervisor was asked for the customer location."
+msgstr "تم طلب موقع العميل من المشرف."
+
+msgid "Please enter the reason for stopping the trip."
+msgstr "يرجى إدخال سبب إيقاف الرحلة."
+
+msgid "Enter the customer scale."
+msgstr "أدخل وزن ميزان العميل."
+
+msgid "Attach the customer scale / delivery proof before ending the trip."
+msgstr "أرفق ميزان العميل / إثبات التسليم قبل إنهاء الرحلة."
+
+msgid "This step is not available for a trip that is {0}."
+msgstr "هذه الخطوة غير متاحة لرحلة حالتها {0}."
+
+msgid "This trip is not assigned to you."
+msgstr "هذه الرحلة غير مسندة إليك."
+
+msgid "The driver asked for the customer location."
+msgstr "طلب السائق موقع العميل."
+
+msgid "Delivery Trip not found"
+msgstr "رحلة التسليم غير موجودة"
+
+msgid "Ended"
+msgstr "انتهت"
+
+msgid "Reviewed"
+msgstr "تمت المراجعة"
+
+#. Delivery Trip status / action in the driver app
+msgctxt "Delivery Trip"
+msgid "Ended"
+msgstr "انتهت"
+
+#. Delivery Trip status / action in the driver app
+msgctxt "Delivery Trip"
+msgid "Reviewed"
+msgstr "تمت المراجعة"
+
+#. Delivery Trip status / action in the driver app
+msgctxt "Delivery Trip"
+msgid "Resume"
+msgstr "استئناف"

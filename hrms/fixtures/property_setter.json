@@ -17,6 +17,6 @@
     "field_name": "status",
     "property": "options",
     "property_type": "Text",
-    "value": "Draft\nScheduled\nIn Transit\nCompleted\nCancelled\nDelivered\nStopped"
+    "value": "Draft\nScheduled\nIn Transit\nStopped\nDelivered\nEnded\nReviewed\nCompleted\nCancelled"
   }
 ]

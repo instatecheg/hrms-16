@@ -35,7 +35,7 @@ async function getSessionDriver() {
 	return driverPromise
 }
 
-async function fetchRequests(extraFilters = {}) {
+async function fetchRequests(extraFilters = {}, limit = 0) {
 	const driver = await getSessionDriver()
 	if (!driver) return []
 
@@ -43,30 +43,34 @@ async function fetchRequests(extraFilters = {}) {
 		doctype: "Transportation Request",
 		fields: REQUEST_FIELDS,
 		filters: { driver, ...extraFilters },
-		order_by: "departure_time desc",
+		// last updated first
+		order_by: "modified desc",
+		limit_page_length: limit,
 	})
 }
 
-// Workflow states in which the driver still has a step to do
-// (Go to Location, Arrived at Loading Location, Confirm / Cancel, Request Documents).
-export const DRIVER_ACTIVE_STATES = [
+// Every state the driver can see: from "Sent to driver" on (Draft belongs to the supervisor).
+export const REQUEST_STATES = [
 	"Sent to driver",
 	"Driver heading to loading",
 	"Driver at loading location",
 	"Confirmed by driver",
+	"Cancelled by driver",
+	"Documents requested",
+	"Trip created",
+	"Cancelled",
 ]
 
-// "Requests" panel on Home: only the ones still waiting on the driver,
-// regardless of date.
+// "Requests" panel on Home: the last three updated requests, in any state from "Sent to driver" on.
 export async function fetchDriverRequests() {
-	return fetchRequests({ workflow_state: ["in", DRIVER_ACTIVE_STATES] })
+	return fetchRequests({ workflow_state: ["!=", "Draft"] }, 3)
 }
 
 // "All" page: every state except Draft (Draft is Supervisor-only, so the
 // driver shouldn't see it at all; everything else — the driver steps,
 // Documents requested, Trip created, Cancelled, and any future state — is fair game).
-export async function fetchAllRequests() {
-	return fetchRequests({ workflow_state: ["!=", "Draft"] })
+export async function fetchAllRequests(state = "") {
+	return fetchRequests({ workflow_state: state ? state : ["!=", "Draft"] })
 }
 
 export async function getTransportationRequest(name) {

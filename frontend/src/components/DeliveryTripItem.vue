@@ -14,7 +14,7 @@
 		<template #right>
 			<Badge
 				variant="outline"
-				:theme="statusMap[props.doc.status] || 'gray'"
+				:theme="tripStatusTheme(props.doc.status)"
 				:label="__(props.doc.status, null, 'Delivery Trip')"
 				size="md"
 			/>
@@ -28,6 +28,7 @@ import { inject } from "vue"
 import { FeatherIcon, Badge } from "frappe-ui"
 
 import ListItem from "@/components/ListItem.vue"
+import { tripStatusTheme } from "@/utils/statusColors"
 
 const __ = inject("$translate")
 
@@ -36,11 +37,4 @@ const props = defineProps({
 		type: Object,
 	},
 })
-
-const statusMap = {
-	Scheduled: "gray",
-	"In Transit": "blue",
-	Completed: "green",
-	Cancelled: "red",
-}
 </script>

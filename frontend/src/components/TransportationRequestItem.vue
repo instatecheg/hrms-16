@@ -17,7 +17,7 @@
 			<Badge
 				v-if="props.doc.workflow_state"
 				variant="outline"
-				theme="gray"
+				:theme="requestStateTheme(props.doc.workflow_state)"
 				:label="__(props.doc.workflow_state, null, 'Transportation Request')"
 				size="md"
 				class="whitespace-nowrap shrink-0"
@@ -32,6 +32,7 @@ import { computed, inject } from "vue"
 import { FeatherIcon, Badge } from "frappe-ui"
 
 import ListItem from "@/components/ListItem.vue"
+import { requestStateTheme } from "@/utils/statusColors"
 import { formatTimestamp } from "@/utils/formatters"
 
 const __ = inject("$translate")

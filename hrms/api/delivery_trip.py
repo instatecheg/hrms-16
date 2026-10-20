@@ -98,3 +98,150 @@ def resolve_map_coordinates(url):
 		return None
 
 	return {"latitude": float(match.group(1)), "longitude": float(match.group(2))}
+
+# ---------------------------------------------------------------------------
+# Driver app: trip details and the driver's steps
+#   Draft -> Start -> In Transit -> (Stop -> Stopped -> Resume ->) In Transit -> Delivered -> End -> Ended
+# The trip stays a draft: the supervisor reviews it (Reviewed) and the accounts manager completes it.
+# ---------------------------------------------------------------------------
+TRIP = "Delivery Trip"
+TRIP_GPS_FIELDS = {
+	# action: (map link field, latitude field, longitude field)
+	"start": ("lh_departure_location", "departure_location_latitude", "departure_location_longitude"),
+	"stop": ("lh_stop_location", "stop_location_latitude", "stop_location_longitude"),
+	"resume": ("lh_resume_location", None, None),
+	"delivered": ("lh_arrival_location", "arrival_location_latitude", "arrival_location_longitude"),
+}
+TRIP_NEXT_STATUS = {"start": "In Transit", "stop": "Stopped", "resume": "In Transit", "delivered": "Delivered", "end": "Ended"}
+TRIP_ACTIONS_BY_STATUS = {
+	"Draft": ["start"],
+	"Scheduled": ["start"],
+	"In Transit": ["delivered", "stop", "request_customer_location"],
+	"Stopped": ["resume", "request_customer_location"],
+	"Delivered": ["end", "request_customer_location"],
+}
+
+
+def _trip_for_driver(name):
+	"""The trip, only for its own driver (or a supervisor / admin)."""
+	from hrms.api.transportation_request import _driver_user
+
+	if not name or not frappe.db.exists(TRIP, name):
+		frappe.throw(frappe._("Delivery Trip not found"))
+	doc = frappe.get_doc(TRIP, name)
+	is_manager = {"Supervisor", "System Manager"} & set(frappe.get_roles())
+	if not is_manager and _driver_user(doc.get("driver")) != frappe.session.user:
+		frappe.throw(frappe._("This trip is not assigned to you."), frappe.PermissionError)
+	return doc
+
+
+def _trip_attachments(name):
+	user = frappe.session.user
+	files = frappe.get_all(
+		"File",
+		filters={"attached_to_doctype": TRIP, "attached_to_name": name},
+		fields=["name", "file_name", "file_url", "owner", "creation"],
+		order_by="creation desc",
+		limit_page_length=0,
+	)
+	for row in files:
+		row["can_delete"] = user == "Administrator" or row.get("owner") == user
+	return files
+
+
+def _trip_detail(doc):
+	"""Shown in the same order as the request sheet; the location is the trip's Customer Location."""
+	request = doc.get("lh_transportation_request") if doc.meta.has_field("lh_transportation_request") else None
+	req = (
+		frappe.db.get_value("Transportation Request", request, ["customer_info", "from", "to"], as_dict=True)
+		if request
+		else None
+	) or {}
+	customer = doc.get("lh_customer")
+	return {
+		"name": doc.name,
+		"status": doc.get("status") or "Draft",
+		"docstatus": doc.docstatus,
+		"transportation_request": request,
+		"customer": customer,
+		"customer_name": (frappe.db.get_value("Customer", customer, "customer_name") if customer else None) or customer,
+		"customer_info": req.get("customer_info"),
+		"departure_time": doc.get("departure_time"),
+		"from": req.get("from") or doc.get("lh_source_city"),
+		"to": req.get("to") or doc.get("lh_destination_city"),
+		"vehicle": doc.get("vehicle"),
+		"driver": doc.get("driver"),
+		"driver_name": doc.get("driver_name"),
+		"location": doc.get("lh_customer_location"),
+		"stop_reason": doc.get("stop_reason"),
+		"customer_scale": doc.get("lh_customer_first_weight"),
+		"actions": TRIP_ACTIONS_BY_STATUS.get(doc.get("status") or "Draft", []) if doc.docstatus == 0 else [],
+		"attachments": _trip_attachments(doc.name),
+	}
+
+
+@frappe.whitelist()
+def get_driver_trip(name=None):
+	return _trip_detail(_trip_for_driver(name))
+
+
+@frappe.whitelist(methods=["POST"])
+def driver_trip_action(name=None, action=None, latitude=None, longitude=None, reason=None, customer_scale=None):
+	"""Start / Stop / Resume / Delivered (with the phone's GPS), End (customer scale + attachment),
+	or ask the supervisor for the customer location."""
+	_ = frappe._
+	doc = _trip_for_driver(name)
+	allowed = _trip_detail(doc)["actions"]
+	if action not in allowed:
+		frappe.throw(_("This step is not available for a trip that is {0}.").format(_(doc.get("status") or "Draft")))
+
+	if action == "request_customer_location":
+		if "telegram_connector" in frappe.get_installed_apps():
+			from telegram_connector.delivery_trip import request_customer_location
+
+			request_customer_location(doc.name)
+		doc.add_comment("Info", _("The driver asked for the customer location."))
+		frappe.db.commit()
+		return _trip_detail(doc)
+
+	values = {"status": TRIP_NEXT_STATUS[action]}
+	gps = TRIP_GPS_FIELDS.get(action)
+	if gps:
+		try:
+			lat, lng = float(latitude), float(longitude)
+		except (TypeError, ValueError):
+			frappe.throw(_("Your location is required. Please allow location access and try again."))
+		link_field, lat_field, lng_field = gps
+		values[link_field] = f"https://maps.google.com/?q={lat},{lng}"
+		if lat_field:
+			values[lat_field], values[lng_field] = lat, lng
+	if action == "stop":
+		reason = str(reason or "").strip()
+		if not reason:
+			frappe.throw(_("Please enter the reason for stopping the trip."))
+		values["stop_reason"] = reason
+	if action == "end":
+		if not frappe.utils.flt(customer_scale) > 0:
+			frappe.throw(_("Enter the customer scale."))
+		# The proof must be a file attached with the customer scale (after Delivered), not one copied
+		# from the request or added at Start.
+		proof_filters = {"attached_to_doctype": TRIP, "attached_to_name": doc.name}
+		if doc.get("lh_delivered_on"):
+			proof_filters["creation"] = [">=", doc.get("lh_delivered_on")]
+		if not frappe.db.count("File", proof_filters):
+			frappe.throw(_("Attach the customer scale / delivery proof before ending the trip."))
+		values["lh_customer_first_weight"] = frappe.utils.flt(customer_scale)
+
+	for fieldname, value in values.items():
+		if doc.meta.has_field(fieldname):
+			doc.set(fieldname, value)
+	if action == "delivered":
+		if doc.meta.has_field("lh_delivered_on"):
+			doc.lh_delivered_on = frappe.utils.now_datetime()
+		for stop in doc.get("delivery_stops") or []:
+			stop.visited = 1
+	# A normal save, so the trip's hooks run (e.g. the supervisor's Telegram message on End).
+	doc.flags.ignore_mandatory = True
+	doc.save(ignore_permissions=True)
+	frappe.db.commit()
+	return _trip_detail(doc)

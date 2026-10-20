@@ -1,17 +1,20 @@
 import { reactive } from "vue"
 import { call } from "frappe-ui"
 
+// Ended / Reviewed / Completed: the driver is done (supervisor review, then accounts).
 const STATUS_GROUPS = {
-	active: ["Draft","Scheduled", "In Transit", "Delivered", "Stopped"],
-	history: ["Completed", "Cancelled"],
+	active: ["Draft", "Scheduled", "In Transit", "Stopped", "Delivered"],
+	history: ["Ended", "Reviewed", "Completed", "Cancelled"],
 }
 
 const ALL_STATUSES = [
 	"Draft",
 	"Scheduled",
 	"In Transit",
-	"Delivered",
 	"Stopped",
+	"Delivered",
+	"Ended",
+	"Reviewed",
 	"Completed",
 	"Cancelled",
 ]
@@ -68,7 +71,8 @@ async function fetchTripsForDriver(extraFilters = {}) {
 		doctype: "Delivery Trip",
 		fields: TRIP_LIST_FIELDS,
 		filters: { driver, ...extraFilters },
-		order_by: "departure_time asc",
+		// last updated first
+		order_by: "modified desc",
 	})
 
 	return transformTripData(data)
@@ -82,7 +86,7 @@ async function fetchAllTrips(extraFilters = {}) {
 		doctype: "Delivery Trip",
 		fields: TRIP_LIST_FIELDS,
 		filters: {...extraFilters },
-		order_by: "departure_time asc",
+		order_by: "modified desc",
 		limit_page_length: 10,
 	})
 
@@ -144,64 +148,15 @@ export async function fetchTripsByStatusGroup(group) {
 }
 
 
-async function forceUpdateTrip(tripName, fields) {
-	return call("hrms.api.delivery_trip.force_update_delivery_trip", {
-		name: tripName,
-		fields,
-	})
+// Full trip for the trip sheet: details in the request sheet's order and the driver's next buttons.
+export async function getDriverTrip(name) {
+	return call("hrms.api.delivery_trip.get_driver_trip", { name })
 }
 
-export async function updateTripStatus(tripName, status) {
-	return forceUpdateTrip(tripName, { status })
-}
-
-// Start: driver's current position is recorded as the departure location
-export async function startTrip(tripName, { latitude, longitude }) {
-	return forceUpdateTrip(tripName, {
-		status: "In Transit",
-		departure_location_latitude: latitude,
-		departure_location_longitude: longitude,
-	})
-}
-
-// Delivered: driver's current position is recorded as the arrival location
-export async function markDelivered(tripName, { latitude, longitude }) {
-	return forceUpdateTrip(tripName, {
-		status: "Delivered",
-		arrival_location_latitude: latitude,
-		arrival_location_longitude: longitude,
-	})
-}
-
-// Stop (renamed from Emergency Stop). Now also records the driver's current
-// position at the point they stopped.
-export async function stopTrip(tripName, reason, { latitude, longitude } = {}) {
-	return forceUpdateTrip(tripName, {
-		status: "Stopped",
-		stop_reason: reason,
-		stop_location_latitude: latitude,
-		stop_location_longitude: longitude,
-	})
-}
-
-// End (while In Transit): marks every Delivery Stop row under this trip as
-// visited, via a separate endpoint since child-table rows have their own
-// doctype/name and aren't reachable through frappe.db.set_value on the
-// parent the way flat fields are.
-export async function markAllStopsVisited(tripName) {
-	return call("hrms.api.delivery_trip.mark_all_delivery_stops_visited", {
-		trip_name: tripName,
-	})
-}
-
-// End: customer scale reading closes the trip out. The delivery proof file
-// is attached separately (see DeliveryTripActionSheet.vue's FileUploader),
-// this just records the weight and flips status to Completed.
-export async function completeTrip(tripName, customerFirstWeight) {
-	return forceUpdateTrip(tripName, {
-		status: "Completed",
-		lh_customer_first_weight: customerFirstWeight,
-	})
+// The driver's steps: start / stop / resume / delivered (with GPS), end (customer scale),
+// request_customer_location (Telegram to the supervisor).
+export async function driverTripAction(name, action, args = {}) {
+	return call("hrms.api.delivery_trip.driver_trip_action", { name, action, ...args })
 }
 
 export { STATUS_GROUPS, ALL_STATUSES }

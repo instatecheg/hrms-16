@@ -13,12 +13,13 @@
 					<span class="text-[var(--color-primary)] font-bold text-lg">
 						{{ request.name }}
 					</span>
-					<span
+					<Badge
 						v-if="request.workflow_state"
-						class="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-card-selected-bg)] text-[var(--color-primary)]"
-					>
-						{{ __(request.workflow_state, null, "Transportation Request") }}
-					</span>
+						variant="subtle"
+						:theme="requestStateTheme(request.workflow_state)"
+						:label="__(request.workflow_state, null, 'Transportation Request')"
+						size="md"
+					/>
 				</div>
 
 				<!-- Details -->
@@ -256,11 +257,12 @@
 
 <script setup>
 import { ref, computed, watch, inject } from "vue"
-import { FeatherIcon, LoadingIndicator, call, toast } from "frappe-ui"
+import { Badge, FeatherIcon, LoadingIndicator, call, toast } from "frappe-ui"
 
 import FileUploaderView from "@/components/FileUploaderView.vue"
 import { FileAttachment } from "@/composables"
 import { useTripLocation } from "@/composables/useTripLocation"
+import { requestStateTheme } from "@/utils/statusColors"
 
 const __ = inject("$translate")
 const dayjs = inject("$dayjs")

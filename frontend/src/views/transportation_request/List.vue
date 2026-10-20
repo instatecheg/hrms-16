@@ -12,6 +12,18 @@
 						{{ __("Requests") }}
 					</h2>
 				</div>
+				<!-- Filter by state -->
+				<div class="flex flex-row gap-2 p-3 border-b bg-[var(--color-surface)]">
+					<select
+						v-model="stateFilter"
+						class="w-full rounded border border-[var(--color-card-border)] text-sm py-2 px-2 text-gray-700"
+					>
+						<option value="">{{ __("All Statuses") }}</option>
+						<option v-for="state in REQUEST_STATES" :key="state" :value="state">
+							{{ __(state, null, "Transportation Request") }}
+						</option>
+					</select>
+				</div>
 			</div>
 		</ion-header>
 
@@ -49,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from "vue"
+import { ref, inject, onMounted, watch } from "vue"
 import { useRouter } from "vue-router"
 import { IonPage, IonHeader, IonContent } from "@ionic/vue"
 import { FeatherIcon, LoadingIndicator } from "frappe-ui"
@@ -57,7 +69,7 @@ import { FeatherIcon, LoadingIndicator } from "frappe-ui"
 import TransportationRequestItem from "@/components/TransportationRequestItem.vue"
 import TransportationRequestSheet from "@/components/TransportationRequestSheet.vue"
 import EmptyState from "@/components/EmptyState.vue"
-import { fetchAllRequests } from "@/data/transportationRequests"
+import { fetchAllRequests, REQUEST_STATES } from "@/data/transportationRequests"
 
 const __ = inject("$translate")
 const router = useRouter()
@@ -65,16 +77,18 @@ const router = useRouter()
 const requests = ref([])
 const loading = ref(true)
 const selectedRequest = ref(null)
+const stateFilter = ref("")
 
 // also called after the driver moves a request to its next step
 async function reload() {
 	loading.value = true
 	try {
-		requests.value = await fetchAllRequests()
+		requests.value = await fetchAllRequests(stateFilter.value)
 	} finally {
 		loading.value = false
 	}
 }
 
 onMounted(reload)
+watch(stateFilter, reload)
 </script>
