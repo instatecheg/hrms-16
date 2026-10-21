@@ -237,8 +237,6 @@ def driver_trip_action(name=None, action=None, latitude=None, longitude=None, re
 			frappe.throw(_("Please enter the reason for stopping the trip."))
 		values["stop_reason"] = reason
 	if action == "end":
-		if not frappe.utils.flt(customer_scale) > 0:
-			frappe.throw(_("Enter the customer scale."))
 		# The proof must be a file attached with the customer scale (after Delivered), not one copied
 		# from the request or added at Start.
 		proof_filters = {"attached_to_doctype": TRIP, "attached_to_name": doc.name}
@@ -246,9 +244,11 @@ def driver_trip_action(name=None, action=None, latitude=None, longitude=None, re
 			proof_filters["creation"] = [">=", doc.get("lh_delivered_on")]
 		if not frappe.db.count("File", proof_filters):
 			frappe.throw(_("Attach the customer scale / delivery proof before ending the trip."))
-		values["lh_customer_first_weight"] = frappe.utils.flt(customer_scale)
-		# The dashboards take the customer scale as one reading (End Customer Scale = customer net).
-		values["lh_customer_net_weight"] = frappe.utils.flt(customer_scale)
+		# The customer scale is optional; when given, the dashboards take it as one reading
+		# (End Customer Scale = customer net).
+		if frappe.utils.flt(customer_scale) > 0:
+			values["lh_customer_first_weight"] = frappe.utils.flt(customer_scale)
+			values["lh_customer_net_weight"] = frappe.utils.flt(customer_scale)
 
 	for fieldname, value in values.items():
 		if doc.meta.has_field(fieldname):

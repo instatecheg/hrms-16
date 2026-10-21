@@ -118,10 +118,10 @@
 					/>
 				</div>
 
-				<!-- End: customer scale + its attachment, both mandatory -->
+				<!-- End: customer scale (optional) + the delivery proof attachment (mandatory) -->
 				<div v-if="can('end')" class="w-full flex flex-col gap-2 mt-2">
 					<div class="flex flex-col gap-2">
-						<label class="text-sm text-gray-600">{{ __("Customer Scale") }} *</label>
+						<label class="text-sm text-gray-600">{{ __("Customer Scale") }}</label>
 						<input
 							v-model="customerScale"
 							type="number"
@@ -223,7 +223,7 @@
 					:class="primaryButton"
 					variant="solid"
 					:loading="busy"
-					:disabled="!customerScale || !proofAttachments.length || !!uploading"
+					:disabled="!proofAttachments.length || !!uploading"
 				>
 					<template #prefix><FeatherIcon name="check-circle" class="w-4" /></template>
 					{{ __("End", null, "Delivery Trip") }}
