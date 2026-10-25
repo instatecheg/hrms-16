@@ -1,7 +1,8 @@
 # Copyright (c) 2023, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 import frappe
-from frappe import bold
+from frappe import _, bold
+from frappe.translate import get_user_lang
 
 
 class PWANotificationsMixin:
@@ -24,7 +25,13 @@ class PWANotificationsMixin:
 			notification.from_user = from_user
 			notification.to_user = to_user
 
-			notification.message = f"{bold('Your')} {bold(self.doctype)} {self.name} has been {bold(status)} by {bold(from_user_name)}"
+			# stored as text, so write it in the recipient's language
+			lang = get_user_lang(to_user)
+			if status == "Approved":
+				message = _("Your {0} {1} has been approved by {2}", lang)
+			else:
+				message = _("Your {0} {1} has been rejected by {2}", lang)
+			notification.message = message.format(bold(_(self.doctype, lang)), self.name, bold(from_user_name))
 
 			notification.reference_document_type = self.doctype
 			notification.reference_document_name = self.name
@@ -39,8 +46,9 @@ class PWANotificationsMixin:
 			return
 
 		notification = frappe.new_doc("PWA Notification")
-		notification.message = (
-			f"{bold(self.employee_name)} raised a new {bold(self.doctype)} for approval: {self.name}"
+		lang = get_user_lang(to_user)
+		notification.message = _("{0} raised a new {1} for approval: {2}", lang).format(
+			bold(self.employee_name), bold(_(self.doctype, lang)), self.name
 		)
 		notification.from_user = from_user
 		notification.to_user = to_user

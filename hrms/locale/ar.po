@@ -12213,3 +12213,19 @@ msgstr "موقع العميل غير موجود. يمكنك بدء الرحلة�
 
 msgid "The trip has no customer location yet. Request it from the supervisor first."
 msgstr "لا يوجد موقع للعميل في الرحلة بعد. اطلبه من المشرف أولاً."
+
+#: hrms/mixins/pwa_notifications.py
+msgid "Your {0} {1} has been approved by {2}"
+msgstr "تمت الموافقة على {0} {1} بواسطة {2}"
+
+#: hrms/mixins/pwa_notifications.py
+msgid "Your {0} {1} has been rejected by {2}"
+msgstr "تم رفض {0} {1} بواسطة {2}"
+
+#: hrms/mixins/pwa_notifications.py
+msgid "{0} raised a new {1} for approval: {2}"
+msgstr "أرسل {0} {1} للموافقة: {2}"
+
+#: hrms/mixins/pwa_notifications.py
+msgid "Expense Claim"
+msgstr "مطالبة النفقات"

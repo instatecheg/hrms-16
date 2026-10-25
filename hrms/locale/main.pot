@@ -12324,3 +12324,15 @@ msgstr ""
 #: frontend (mobile app, logistics branch)
 msgid "{0} balance"
 msgstr ""
+
+#: hrms/mixins/pwa_notifications.py
+msgid "Your {0} {1} has been approved by {2}"
+msgstr ""
+
+#: hrms/mixins/pwa_notifications.py
+msgid "Your {0} {1} has been rejected by {2}"
+msgstr ""
+
+#: hrms/mixins/pwa_notifications.py
+msgid "{0} raised a new {1} for approval: {2}"
+msgstr ""
