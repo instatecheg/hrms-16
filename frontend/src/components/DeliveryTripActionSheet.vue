@@ -72,7 +72,7 @@
 					v-if="detail?.needs_customer_location"
 					class="w-full rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"
 				>
-					{{ __("The customer location is missing. Request it from the supervisor; you can start the trip once it is added.") }}
+					{{ __("The customer location is missing. You can start the trip, or request the location from the supervisor.") }}
 				</div>
 
 				<div v-if="locationStatus" class="text-xs text-[var(--color-blue-muted)] text-center">
@@ -80,7 +80,7 @@
 				</div>
 
 				<!-- Optional attachments, shown with the Start button -->
-				<div v-if="can('start') || detail?.needs_customer_location" class="w-full flex flex-col gap-2 mt-2">
+				<div v-if="can('start')" class="w-full flex flex-col gap-2 mt-2">
 					<label class="text-sm text-gray-600">{{ __("Attachments") }}</label>
 					<div class="flex flex-row gap-2 items-center justify-center p-5" v-if="uploading === 'start'">
 						<LoadingIndicator class="w-3 h-3 text-gray-800" />
@@ -160,18 +160,18 @@
 		>
 			<template v-if="!showStopForm">
 				<Button
-					v-if="can('start') || detail?.needs_customer_location"
+					v-if="can('start')"
 					@click="runAction('start', { withLocation: true })"
 					:class="primaryButton"
 					variant="solid"
 					:loading="busy"
-					:disabled="!can('start') || !!uploading"
+					:disabled="!!uploading"
 				>
 					<template #prefix><FeatherIcon name="play" class="w-4" /></template>
 					{{ __("Start", null, "Delivery Trip") }}
 				</Button>
 
-				<!-- Draft without a customer location: ask the supervisor for it (Telegram) -->
+				<!-- No customer location yet: the driver may ask the supervisor for it (Telegram) -->
 				<Button
 					v-if="can('request_customer_location')"
 					@click="runAction('request_customer_location')"

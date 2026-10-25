@@ -113,8 +113,8 @@ TRIP_GPS_FIELDS = {
 	"delivered": ("lh_arrival_location", "arrival_location_latitude", "arrival_location_longitude"),
 }
 TRIP_NEXT_STATUS = {"start": "In Transit", "stop": "Stopped", "resume": "In Transit", "delivered": "Delivered", "end": "Ended"}
-# Before Start the trip needs its Customer Location: while it is empty the driver can only ask the
-# supervisor for it ("request_customer_location"); once it is filled, Start is allowed.
+# The Customer Location is not required to Start: while it is empty the driver can also ask the
+# supervisor for it ("request_customer_location").
 TRIP_ACTIONS_BY_STATUS = {
 	"Draft": ["start", "request_customer_location"],
 	"Scheduled": ["start", "request_customer_location"],
@@ -128,8 +128,9 @@ def _trip_actions(doc):
 	if doc.docstatus != 0:
 		return []
 	actions = TRIP_ACTIONS_BY_STATUS.get(doc.get("status") or "Draft", [])
-	has_location = bool(str(doc.get("lh_customer_location") or "").strip())
-	return [a for a in actions if a != ("request_customer_location" if has_location else "start")]
+	if str(doc.get("lh_customer_location") or "").strip():
+		actions = [a for a in actions if a != "request_customer_location"]
+	return actions
 
 
 def _trip_for_driver(name):
@@ -186,7 +187,7 @@ def _trip_detail(doc):
 		"stop_reason": doc.get("stop_reason"),
 		"customer_scale": doc.get("lh_customer_first_weight"),
 		"actions": _trip_actions(doc),
-		# Start is shown (disabled) until the supervisor adds the customer location.
+		# The driver can still start; this only shows the "location missing" hint.
 		"needs_customer_location": doc.docstatus == 0
 		and (doc.get("status") or "Draft") in ("Draft", "Scheduled")
 		and not str(doc.get("lh_customer_location") or "").strip(),
@@ -206,8 +207,6 @@ def driver_trip_action(name=None, action=None, latitude=None, longitude=None, re
 	_ = frappe._
 	doc = _trip_for_driver(name)
 	allowed = _trip_actions(doc)
-	if action == "start" and "request_customer_location" in allowed:
-		frappe.throw(_("The trip has no customer location yet. Request it from the supervisor first."))
 	if action not in allowed:
 		frappe.throw(_("This step is not available for a trip that is {0}.").format(_(doc.get("status") or "Draft")))
 

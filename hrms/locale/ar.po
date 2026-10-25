@@ -12208,8 +12208,8 @@ msgstr "المرفقات"
 msgid "Navigate"
 msgstr "التوجيه"
 
-msgid "The customer location is missing. Request it from the supervisor; you can start the trip once it is added."
-msgstr "موقع العميل غير موجود. اطلبه من المشرف؛ يمكنك بدء الرحلة بعد إضافته."
+msgid "The customer location is missing. You can start the trip, or request the location from the supervisor."
+msgstr "موقع العميل غير موجود. يمكنك بدء الرحلة، أو طلب الموقع من المشرف."
 
 msgid "The trip has no customer location yet. Request it from the supervisor first."
 msgstr "لا يوجد موقع للعميل في الرحلة بعد. اطلبه من المشرف أولاً."
