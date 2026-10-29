@@ -12229,3 +12229,19 @@ msgstr "أرسل {0} {1} للموافقة: {2}"
 #: hrms/mixins/pwa_notifications.py
 msgid "Expense Claim"
 msgstr "مطالبة النفقات"
+
+#: frontend (mobile app, logistics branch)
+msgid "Current Trip"
+msgstr "الرحلة الحالية"
+
+#: frontend (mobile app, logistics branch)
+msgid "Hello, {0}"
+msgstr "مرحبًا، {0}"
+
+#: frontend (mobile app, logistics branch)
+msgid "Here is your day at a glance."
+msgstr "هذا ملخص يومك."
+
+#: frontend (mobile app, logistics branch)
+msgid "No customer"
+msgstr "بدون عميل"

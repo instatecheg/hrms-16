@@ -12336,3 +12336,19 @@ msgstr ""
 #: hrms/mixins/pwa_notifications.py
 msgid "{0} raised a new {1} for approval: {2}"
 msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Current Trip"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Hello, {0}"
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "Here is your day at a glance."
+msgstr ""
+
+#: frontend (mobile app, logistics branch)
+msgid "No customer"
+msgstr ""

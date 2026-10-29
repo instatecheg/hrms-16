@@ -2,111 +2,92 @@
 	<ion-page>
 		<ion-header class="ion-no-border">
 			<div class="w-full sm:w-96">
-				<div
-					class="flex flex-row bg-[var(--color-surface)] shadow-sm py-4 px-3 items-center justify-between border-b"
-				>
-					<div class="flex flex-row items-center">
-						<Button variant="ghost" class="!px-1 me-1 hover:bg-white" @click="router.back()">
-							<FeatherIcon name="chevron-left" class="h-5 w-5" />
-						</Button>
-						<h2 class="text-xl font-semibold text-[var(--color-primary)]">
-							{{ __("Delivery Trips") }}
-						</h2>
-					</div>
-
-					<Button
-						icon="filter"
-						variant="subtle"
-						:class="[
-							statusFilter
-								? '!border !border-[var(--color-primary)] !bg-[var(--color-card-bg)] !text-[var(--color-primary)] !font-semibold'
-								: '',
-						]"
-						@click="showFilters = !showFilters"
-					/>
-				</div>
-
-				<div v-if="showFilters" class="flex flex-row gap-2 p-3 border-b bg-[var(--color-surface)]">
-					<select
-						v-model="statusFilter"
-						class="w-full rounded border border-[var(--color-card-border)] text-sm py-2 px-2 text-gray-700"
-					>
-						<option value="">{{ __("All Statuses") }}</option>
-						<option v-for="status in activeGroupStatuses" :key="status" :value="status">
-							{{ __(status, null, "Delivery Trip") }}
-						</option>
-					</select>
-				</div>
+				<PageHeader :title="__('Delivery Trips')" />
 			</div>
 		</ion-header>
 
 		<ion-content>
-			<div class="flex flex-col items-center mb-7 p-4 h-full w-full sm:w-96 overflow-y-auto">
-				<div class="w-full">
-					<TabButtons :buttons="TAB_BUTTONS" v-model="activeTab" />
+			<ion-refresher slot="fixed" @ionRefresh="onPull">
+				<ion-refresher-content />
+			</ion-refresher>
 
+			<div class="flex flex-col p-4 pb-8 gap-4 w-full sm:w-96">
+				<TabButtons :buttons="TAB_BUTTONS" v-model="activeTab" />
+
+				<FilterChips v-model="statusFilter" :options="filterOptions" />
+
+				<div v-if="filteredTrips.length" class="app-card app-list overflow-hidden">
 					<div
-						class="flex flex-col bg-[var(--color-surface)] rounded mt-5"
-						v-if="!loading && filteredTrips.length"
+						class="p-3.5 cursor-pointer active:bg-gray-50"
+						v-for="trip in filteredTrips"
+						:key="trip.name"
+						@click="openTrip(trip)"
 					>
-						<div
-							class="p-3.5 items-center justify-between border-b cursor-pointer"
-							v-for="trip in filteredTrips"
-							:key="trip.name"
-							@click="openTrip(trip)"
-						>
-							<DeliveryTripItem :doc="trip" />
-						</div>
+						<DeliveryTripItem :doc="trip" />
 					</div>
-					<EmptyState :message="__('No trips found')" v-else-if="!loading" />
-
-					<div v-if="loading" class="flex mt-2 items-center justify-center">
-						<LoadingIndicator class="w-8 h-8 text-[var(--color-primary)]" />
-					</div>
+				</div>
+				<div v-else-if="loaded" class="app-card">
+					<EmptyState :message="__('No trips found')" />
+				</div>
+				<div v-else class="flex mt-2 items-center justify-center">
+					<LoadingIndicator class="w-8 h-8 text-[var(--color-primary)]" />
 				</div>
 			</div>
 		</ion-content>
 
 		<ion-modal
-			ref="modal"
-			:is-open="isModalOpen"
-			@didDismiss="closeTrip"
+			:is-open="!!selectedTrip"
+			@didDismiss="selectedTrip = null"
 			:initial-breakpoint="1"
 			:breakpoints="[0, 1]"
 		>
-			<DeliveryTripActionSheet v-model="selectedTrip" @tripUpdated="onTripUpdated" />
+			<DeliveryTripActionSheet v-model="selectedTrip" @tripUpdated="loadTrips" />
 		</ion-modal>
 	</ion-page>
 </template>
 
 <script setup>
 import { ref, computed, watch, inject, onMounted } from "vue"
-import { useRouter } from "vue-router"
-import { IonPage, IonHeader, IonContent, IonModal } from "@ionic/vue"
-import { FeatherIcon, LoadingIndicator } from "frappe-ui"
+import {
+	IonPage,
+	IonHeader,
+	IonContent,
+	IonModal,
+	IonRefresher,
+	IonRefresherContent,
+} from "@ionic/vue"
+import { LoadingIndicator } from "frappe-ui"
 
+import PageHeader from "@/components/PageHeader.vue"
+import FilterChips from "@/components/FilterChips.vue"
 import TabButtons from "@/components/TabButtons.vue"
 import DeliveryTripItem from "@/components/DeliveryTripItem.vue"
 import DeliveryTripActionSheet from "@/components/DeliveryTripActionSheet.vue"
+import EmptyState from "@/components/EmptyState.vue"
+import { usePageRefresh } from "@/composables/pageRefresh"
 
-import { fetchTripsByStatusGroup, STATUS_GROUPS } from "@/data/deliveryTrips"
+import { fetchTripsByStatusGroup, FILTER_STATUSES } from "@/data/deliveryTrips"
 
 const __ = inject("$translate")
-const router = useRouter()
 
 const TAB_BUTTONS = ["Active", "History"] // __("Active"), __("History")
 const activeTab = ref(TAB_BUTTONS[0])
-const showFilters = ref(false)
 const statusFilter = ref("")
 
 const trips = ref([])
-const loading = ref(true)
+// the spinner is only for the first load; later reloads swap the list in place
+const loaded = ref(false)
 
-const isModalOpen = ref(false)
 const selectedTrip = ref(null)
 
 const activeGroupKey = computed(() => (activeTab.value === "Active" ? "active" : "history"))
-const activeGroupStatuses = computed(() => STATUS_GROUPS[activeGroupKey.value])
+const filterOptions = computed(() => [
+	{ value: "", label: __("All") },
+	...FILTER_STATUSES[activeGroupKey.value].map((status) => ({
+		value: status,
+		label: __(status, null, "Delivery Trip"),
+	})),
+])
 
 const filteredTrips = computed(() => {
 	if (!statusFilter.value) return trips.value
@@ -114,31 +95,24 @@ const filteredTrips = computed(() => {
 })
 
 async function loadTrips() {
-	loading.value = true
-	try {
-		trips.value = await fetchTripsByStatusGroup(activeGroupKey.value)
-	} finally {
-		loading.value = false
-	}
+	const group = activeGroupKey.value
+	const data = await fetchTripsByStatusGroup(group)
+	// ignore an answer for a tab the driver already left
+	if (group !== activeGroupKey.value) return
+	trips.value = data
+	loaded.value = true
 }
 
 function openTrip(trip) {
 	selectedTrip.value = trip
-	isModalOpen.value = true
 }
 
-function closeTrip() {
-	isModalOpen.value = false
-	selectedTrip.value = null
-}
-
-function onTripUpdated() {
-	closeTrip()
-	loadTrips()
-}
+const { onPull } = usePageRefresh(loadTrips)
 
 watch(activeTab, () => {
 	statusFilter.value = ""
+	loaded.value = false
+	trips.value = []
 	loadTrips()
 })
 

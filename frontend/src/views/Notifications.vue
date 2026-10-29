@@ -3,19 +3,8 @@
 		<ion-content class="ion-padding">
 			<div class="flex flex-col h-screen w-screen">
 				<div class="w-full sm:w-96">
-					<header
-						class="flex flex-row bg-white shadow-sm py-4 px-3 items-center justify-between border-b sticky top-0 z-10"
-					>
-						<div class="flex flex-row items-center">
-							<Button
-								variant="ghost"
-								class="!ps-0 hover:bg-white"
-								@click="router.back()"
-							>
-								<FeatherIcon name="chevron-left" class="h-5 w-5" />
-							</Button>
-							<h2 class="text-xl font-semibold text-[var(--color-primary)]">{{ __("Notifications") }} </h2>
-						</div>
+					<header class="sticky top-0 z-10">
+						<PageHeader :title="__('Notifications')" />
 					</header>
 
 					<div class="flex flex-col gap-4 mt-5 p-4">
@@ -52,7 +41,7 @@
 						</div>
 
 						<div
-							class="flex flex-col bg-white rounded"
+							class="app-card overflow-hidden"
 							v-if="notifications.data?.length"
 						>
 							<div
@@ -115,6 +104,8 @@ import { createResource, FeatherIcon, call, toast } from "frappe-ui"
 
 import { computed, inject, onMounted, ref } from "vue"
 import EmployeeAvatar from "@/components/EmployeeAvatar.vue"
+import PageHeader from "@/components/PageHeader.vue"
+import { usePageRefresh } from "@/composables/pageRefresh"
 import EmptyState from "@/components/EmptyState.vue"
 import DeliveryTripActionSheet from "@/components/DeliveryTripActionSheet.vue"
 import TransportationRequestSheet from "@/components/TransportationRequestSheet.vue"
@@ -213,6 +204,9 @@ async function openNotification(item) {
 	const route = getItemRoute(item)
 	if (route) router.push(route)
 }
+
+// new notifications show up while the page is open, and when coming back to it
+usePageRefresh(() => notifications.reload(), { doctypes: ["PWA Notification"] })
 
 onMounted(() => {
 	notifications.start = 0,

@@ -2,46 +2,42 @@
 	<ion-page>
 		<ion-header class="ion-no-border">
 			<div class="w-full sm:w-96">
-				<div class="flex flex-col bg-white shadow-sm p-4">
-					<div class="flex flex-row justify-between items-center">
-						<div class="flex flex-row items-center gap-2">
-							<h2 class="text-xl font-bold text-gray-900">
-								{{ props.pageTitle || __("Driver") }}
-							</h2>
-						</div>
-						<div class="flex flex-row items-center gap-3 ms-auto">
-							<router-link
-								:to="{ name: 'Notifications' }"
-								v-slot="{ navigate }"
-								class="flex flex-col items-center"
+				<div class="grid grid-cols-[2.75rem_1fr_2.75rem] items-center bg-[var(--color-surface)] px-4 py-3">
+					<router-link :to="{ name: 'Profile' }" class="flex items-center" :aria-label="__('Profile')">
+						<Avatar :image="user.data.user_image" :label="user.data.first_name" size="lg" />
+					</router-link>
+
+					<h2 class="text-center truncate">
+						{{ props.pageTitle || __("Home") }}
+					</h2>
+
+					<router-link
+						:to="{ name: 'Notifications' }"
+						v-slot="{ navigate }"
+						class="flex items-center justify-end"
+					>
+						<button
+							class="relative flex items-center justify-center w-10 h-10 rounded-full bg-[var(--color-bg-alt)] text-gray-700"
+							:aria-label="__('Notifications')"
+							@click="navigate"
+						>
+							<FeatherIcon name="bell" class="h-5 w-5" />
+							<span
+								v-if="unreadNotificationsCount.data"
+								class="absolute top-2 end-2.5 inline-block w-2 h-2 bg-[var(--color-accent)] rounded-full ring-2 ring-white"
 							>
-								<span class="relative inline-block" @click="navigate">
-									<FeatherIcon name="bell" class="h-6 w-6" />
-									<span
-										v-if="unreadNotificationsCount.data"
-										class="absolute top-0 end-0.5 inline-block w-2 h-2 bg-red-600 rounded-full border border-white"
-									>
-									</span>
-								</span>
-							</router-link>
-							<router-link
-								:to="{ name: 'Profile' }"
-								class="flex flex-col items-center"
-							>
-								<Avatar
-									:image="user.data.user_image"
-									:label="user.data.first_name"
-									size="xl"
-								/>
-							</router-link>
-						</div>
-					</div>
+							</span>
+						</button>
+					</router-link>
 				</div>
 			</div>
 		</ion-header>
 
 		<ion-content class="ion-no-padding">
-			<div class="flex flex-col h-screen w-screen sm:w-96">
+			<ion-refresher v-if="onPull" slot="fixed" @ionRefresh="onPull">
+				<ion-refresher-content />
+			</ion-refresher>
+			<div class="flex flex-col min-h-full w-screen sm:w-96 bg-[var(--color-bg-page)]">
 				<slot name="body"></slot>
 			</div>
 		</ion-content>
@@ -49,14 +45,19 @@
 </template>
 
 <script setup>
-import { IonHeader, IonContent, IonPage } from "@ionic/vue"
+import { IonHeader, IonContent, IonPage, IonRefresher, IonRefresherContent } from "@ionic/vue"
 import { FeatherIcon, Avatar } from "frappe-ui"
 
 import { unreadNotificationsCount } from "@/data/notifications"
+import { usePullToRefresh } from "@/composables/pageRefresh"
 
 import { inject } from "vue"
 
 const user = inject("$user")
+const __ = inject("$translate")
+
+// pull-to-refresh, when the page uses usePageRefresh()
+const onPull = usePullToRefresh()
 
 const props = defineProps({
 	pageTitle: {

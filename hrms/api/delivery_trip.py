@@ -146,6 +146,82 @@ def _trip_for_driver(name):
 	return doc
 
 
+TRIP_LIST_FIELDS = [
+	"name",
+	"status",
+	"vehicle",
+	"driver_name",
+	"departure_time",
+	"lh_customer",
+	"lh_source_city",
+	"lh_destination_city",
+	"lh_transportation_request",
+]
+
+
+def _session_drivers():
+	"""Driver records of the logged-in user (Driver.user, otherwise the Drivers of the user's Employee).
+	A user can be linked to more than one Driver record; the trips of all of them are the user's."""
+	user = frappe.session.user
+	drivers = frappe.get_all("Driver", filters={"user": user}, pluck="name")
+	if not drivers:
+		employee = frappe.db.get_value("Employee", {"user_id": user}, "name")
+		if employee:
+			drivers = frappe.get_all("Driver", filters={"employee": employee}, pluck="name")
+	return drivers
+
+
+@frappe.whitelist()
+def get_driver_trips(statuses=None, today=0, limit=0):
+	"""The logged-in driver's trips for the app lists: last updated first, with the customer's name
+	and From / To. `today` keeps the trips departing today (server date, not the phone's)."""
+	drivers = _session_drivers()
+	if not drivers:
+		return []
+
+	filters = {"driver": ["in", drivers]}
+	if statuses:
+		filters["status"] = ["in", frappe.parse_json(statuses) if isinstance(statuses, str) else statuses]
+	if frappe.utils.cint(today):
+		day = frappe.utils.today()
+		filters["departure_time"] = ["between", [f"{day} 00:00:00", f"{day} 23:59:59"]]
+
+	meta = frappe.get_meta(TRIP)
+	trips = frappe.get_all(
+		TRIP,
+		filters=filters,
+		fields=[f for f in TRIP_LIST_FIELDS if f == "name" or meta.has_field(f)],
+		order_by="modified desc",
+		limit_page_length=frappe.utils.cint(limit),
+	)
+
+	customers = {t.get("lh_customer") for t in trips if t.get("lh_customer")}
+	customer_names = (
+		dict(frappe.get_all("Customer", filters={"name": ["in", list(customers)]}, fields=["name", "customer_name"], as_list=True))
+		if customers
+		else {}
+	)
+	requests = {t.get("lh_transportation_request") for t in trips if t.get("lh_transportation_request")}
+	request_routes = (
+		{
+			r.name: r
+			for r in frappe.get_all(
+				"Transportation Request", filters={"name": ["in", list(requests)]}, fields=["name", "from", "to"]
+			)
+		}
+		if requests
+		else {}
+	)
+
+	for trip in trips:
+		trip["doctype"] = TRIP
+		trip["customer_name"] = customer_names.get(trip.get("lh_customer")) or trip.get("lh_customer")
+		req = request_routes.get(trip.get("lh_transportation_request")) or {}
+		trip["from"] = req.get("from") or trip.get("lh_source_city")
+		trip["to"] = req.get("to") or trip.get("lh_destination_city")
+	return trips
+
+
 def _trip_attachments(name):
 	user = frappe.session.user
 	files = frappe.get_all(

@@ -2,41 +2,32 @@
 	<ion-page>
 		<ion-header class="ion-no-border">
 			<div class="w-full sm:w-96">
-				<div
-					class="flex flex-row bg-[var(--color-surface)] shadow-sm py-4 px-3 items-center justify-between border-b"
-				>
-					<div class="flex flex-row items-center">
-						<Button variant="ghost" class="!px-1 mr-1 hover:bg-white" @click="router.back()">
-							<FeatherIcon name="chevron-left" class="h-5 w-5" />
-						</Button>
-						<h2 class="text-xl font-semibold text-[var(--color-primary)]">
-							{{ __("Maintenance") }}
-						</h2>
-					</div>
-
-					<Button
-						variant="solid"
-						class="!bg-[var(--color-primary)] hover:!bg-[var(--color-primary-hover)] !text-white"
-						@click="openCreate"
-					>
-						<template #prefix>
-							<FeatherIcon name="plus" class="w-4" />
-						</template>
-						{{ __("New") }}
-					</Button>
-				</div>
+				<PageHeader :title="__('Maintenance')">
+					<template #right>
+						<button
+							class="flex items-center justify-center w-10 h-10 rounded-full bg-[var(--color-primary)] text-white shadow-[0_6px_14px_-8px_rgba(10,159,132,0.9)]"
+							:aria-label="__('New')"
+							@click="openCreate"
+						>
+							<FeatherIcon name="plus" class="h-5 w-5" />
+						</button>
+					</template>
+				</PageHeader>
 			</div>
 		</ion-header>
 
 		<ion-content>
+			<ion-refresher slot="fixed" @ionRefresh="onPull">
+				<ion-refresher-content />
+			</ion-refresher>
 			<div class="flex flex-col items-center mb-7 p-4 h-full w-full sm:w-96 overflow-y-auto">
 				<div class="w-full">
 					<div
-						class="flex flex-col bg-[var(--color-surface)] rounded"
-						v-if="!loading && logs.length"
+						class="app-card app-list overflow-hidden"
+						v-if="logs.length"
 					>
 						<div
-							class="flex flex-row p-3.5 items-center justify-between border-b cursor-pointer"
+							class="flex flex-row p-3.5 items-center justify-between cursor-pointer active:bg-gray-50"
 							v-for="log in logs"
 							:key="log.name"
 							@click="openEdit(log)"
@@ -44,7 +35,9 @@
 							<MaintenanceItem :doc="log" />
 						</div>
 					</div>
-					<EmptyState :message="__('No maintenance logs found')" v-else-if="!loading" />
+					<div v-else-if="!loading" class="app-card">
+						<EmptyState :message="__('No maintenance logs found')" />
+					</div>
 
 					<div v-if="loading" class="flex mt-2 items-center justify-center">
 						<LoadingIndicator class="w-8 h-8 text-[var(--color-primary)]" />
@@ -59,10 +52,11 @@
 
 <script setup>
 import { ref, inject, onMounted } from "vue"
-import { useRouter } from "vue-router"
-import { IonPage, IonHeader, IonContent } from "@ionic/vue"
+import { IonPage, IonHeader, IonContent, IonRefresher, IonRefresherContent } from "@ionic/vue"
 import { FeatherIcon, LoadingIndicator } from "frappe-ui"
 
+import PageHeader from "@/components/PageHeader.vue"
+import { usePageRefresh } from "@/composables/pageRefresh"
 import MaintenanceItem from "@/components/MaintenanceItem.vue"
 import MaintenanceEditSheet from "@/components/MaintenanceEditSheet.vue"
 import EmptyState from "@/components/EmptyState.vue"
@@ -70,7 +64,6 @@ import EmptyState from "@/components/EmptyState.vue"
 import { fetchAllDriverLogs } from "@/data/maintenanceLogs"
 
 const __ = inject("$translate")
-const router = useRouter()
 
 const logs = ref([])
 const loading = ref(true)
@@ -93,14 +86,17 @@ function onSaved() {
 	loadLogs()
 }
 
+// the spinner is only for the first load; later reloads swap the list in place
 async function loadLogs() {
-	loading.value = true
+	if (!logs.value.length) loading.value = true
 	try {
 		logs.value = await fetchAllDriverLogs()
 	} finally {
 		loading.value = false
 	}
 }
+
+const { onPull } = usePageRefresh(loadLogs, { doctypes: [] })
 
 onMounted(loadLogs)
 </script>

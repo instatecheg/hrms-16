@@ -2,6 +2,8 @@ import { reactive } from "vue"
 import { call } from "frappe-ui"
 
 // Ended / Reviewed / Completed: the driver is done (supervisor review, then accounts).
+// "Scheduled" is still fetched (older trips may have it) but is no longer offered as a filter:
+// a trip goes Draft -> In Transit -> ... -> Ended.
 const STATUS_GROUPS = {
 	active: ["Draft", "Scheduled", "In Transit", "Stopped", "Delivered"],
 	history: ["Ended", "Reviewed", "Completed", "Cancelled"],
@@ -18,28 +20,6 @@ const ALL_STATUSES = [
 	"Completed",
 	"Cancelled",
 ]
-
-// cache the resolved Driver record for the logged-in user for this session
-let driverPromise = null
-
-async function getSessionDriver() {
-	if (driverPromise) return driverPromise
-
-	driverPromise = (async () => {
-		const user = await call("frappe.auth.get_logged_user")
-
-		const drivers = await call("frappe.client.get_list", {
-			doctype: "Driver",
-			fields: ["name"],
-			filters: { user },
-			limit_page_length: 1,
-		})
-
-		return drivers.length ? drivers[0].name : null
-	})()
-
-	return driverPromise
-}
 
 const TRIP_LIST_FIELDS = [
 	"name",
@@ -63,19 +43,19 @@ function transformTripData(data) {
 	})
 }
 
-async function fetchTripsForDriver(extraFilters = {}) {
-	const driver = await getSessionDriver()
-	if (!driver) return []
-
-	const data = await call("frappe.client.get_list", {
-		doctype: "Delivery Trip",
-		fields: TRIP_LIST_FIELDS,
-		filters: { driver, ...extraFilters },
-		// last updated first
-		order_by: "modified desc",
+// The driver's own trips, with the customer's name and From / To (resolved on the server).
+async function fetchTripsForDriver({ statuses = null, today = false, limit = 0 } = {}) {
+	return call("hrms.api.delivery_trip.get_driver_trips", {
+		statuses: statuses ? JSON.stringify(statuses) : null,
+		today: today ? 1 : 0,
+		limit,
 	})
+}
 
-	return transformTripData(data)
+// Status filter options per tab (no "Scheduled": trips don't use it any more)
+export const FILTER_STATUSES = {
+	active: STATUS_GROUPS.active.filter((status) => status !== "Scheduled"),
+	history: STATUS_GROUPS.history,
 }
 
 // company-wide trips, not scoped to the logged-in driver — used for the
@@ -113,17 +93,18 @@ function createTripResource(fetcher) {
 }
 
 export const myDeliveryTrips = createTripResource(() =>
-	fetchTripsForDriver({ status: ["in", ALL_STATUSES] })
+	fetchTripsForDriver({ statuses: ALL_STATUSES })
 )
 
 export const teamDeliveryTrips = createTripResource(() =>
 	fetchAllTrips({ status: ["in", ALL_STATUSES] })
 )
 
+// Counts for the summary tiles
 export async function fetchTripsSummary() {
 	const trips = await fetchTripsForDriver()
 
-	const summary = { Scheduled: 0, "In Transit": 0, Completed: 0, Cancelled: 0 }
+	const summary = { "In Transit": 0, Ended: 0, Completed: 0, Cancelled: 0 }
 	trips.forEach((trip) => {
 		if (summary[trip.status] !== undefined) summary[trip.status] += 1
 	})
@@ -131,20 +112,13 @@ export async function fetchTripsSummary() {
 	return summary
 }
 
+// Trips departing today (the server's date)
 export async function fetchTodayTrips() {
-	const today = new Date()
-	const start = new Date(today.setHours(0, 0, 0, 0)).toISOString().slice(0, 19)
-	const end = new Date(today.setHours(23, 59, 59, 999)).toISOString().slice(0, 19)
-
-	return fetchTripsForDriver({
-		departure_time: ["between", [start, end]],
-	})
+	return fetchTripsForDriver({ today: true })
 }
 
 export async function fetchTripsByStatusGroup(group) {
-	return fetchTripsForDriver({
-		status: ["in", STATUS_GROUPS[group] || ALL_STATUSES],
-	})
+	return fetchTripsForDriver({ statuses: STATUS_GROUPS[group] || ALL_STATUSES })
 }
 
 

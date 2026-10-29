@@ -272,13 +272,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, inject } from "vue"
+import { ref, computed, watch, inject, onUnmounted } from "vue"
 import { Badge, FeatherIcon, LoadingIndicator, call, toast } from "frappe-ui"
 
 import FileUploaderView from "@/components/FileUploaderView.vue"
 import { FileAttachment } from "@/composables"
 import { useTripLocation } from "@/composables/useTripLocation"
 import { requestStateTheme } from "@/utils/statusColors"
+import { changeMatches, onDataChange } from "@/data/sync"
 
 const __ = inject("$translate")
 const dayjs = inject("$dayjs")
@@ -405,6 +406,22 @@ watch(
 	},
 	{ immediate: true }
 )
+
+// Show the request's new step when someone else moves it (e.g. the Trip Documents team),
+// unless the driver is in the middle of a step.
+const stopSync = onDataChange(async (changes) => {
+	const name = props.modelValue?.name
+	if (!name || loadingDetail.value || busy.value || uploadingSection.value || confirming.value) return
+	if (!changeMatches(changes, ["Transportation Request"], name)) return
+	try {
+		const data = await call("hrms.api.transportation_request.get_driver_transportation_request", { name })
+		if (props.modelValue?.name !== name || busy.value) return
+		if (data.workflow_state !== detail.value?.workflow_state) setDetail(data)
+	} catch {
+		// a background refresh: keep what is on screen
+	}
+})
+onUnmounted(stopSync)
 
 function showError(err) {
 	toast({

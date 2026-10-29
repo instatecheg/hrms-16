@@ -1,29 +1,119 @@
-
+/* ---------------------------------------------------------------------------
+ * App theme: mint / teal, white rounded cards on a light gray page, pill buttons.
+ * Components use the semantic aliases below (--color-primary, --color-surface, ...).
+ * ------------------------------------------------------------------------- */
 
 :root {
-	/* Raw palette (as provided) */
-	--color-blue-700: #0062a3;  /* primary brand blue */
-	--color-blue-800: #0964a4;  /* primary hover / active */
-	--color-cream-100: #fbf6f1; /* page background */
-	--color-cream-200: #f4f5ed; /* alt section background */
-	--color-blue-100: #d0e0f2;  /* selected / highlighted background */
-	--color-blue-50: #eef3f8;   /* card background */
-	--color-blue-border: #d9e7f8; /* card border */
-	--color-blue-muted: #718cad;  /* muted text / icons on light blue */
-	--color-white: #fefeff;
+	/* Raw palette */
+	--color-teal-300: #5fe6cb; /* bright accent (decoration only) */
+	--color-teal-400: #1fd8b5; /* accent: active dots, gradients */
+	--color-teal-600: #0a9f84; /* primary: fills with white text, headings */
+	--color-teal-700: #087f6a; /* primary hover / active */
+	--color-teal-50: #e9faf5; /* tinted card background */
+	--color-teal-100: #d2f4ea; /* selected / highlighted background */
+	--color-teal-border: #c4ede1;
+	--color-gray-page: #f4f6f7; /* page background */
+	--color-gray-field: #f1f3f4; /* input / chip background */
+	--color-slate-muted: #73848a; /* muted text / icons */
+	--color-white: #ffffff;
 
-	/* Semantic aliases — prefer these in components */
-	--color-primary: var(--color-blue-700);
-	--color-primary-hover: var(--color-blue-800);
+	/* Semantic aliases: prefer these in components */
+	--color-primary: var(--color-teal-600);
+	--color-primary-hover: var(--color-teal-700);
+	--color-accent: var(--color-teal-400);
 	--color-on-primary: var(--color-white);
 
-	--color-bg-page: var(--color-cream-100);
-	--color-bg-alt: var(--color-cream-200);
+	--color-bg-page: var(--color-gray-page);
+	--color-bg-alt: var(--color-gray-field);
 
 	--color-surface: var(--color-white);
-	--color-card-bg: var(--color-blue-50);
-	--color-card-selected-bg: var(--color-blue-100);
-	--color-card-border: var(--color-blue-border);
+	--color-card-bg: var(--color-teal-50);
+	--color-card-selected-bg: var(--color-teal-100);
+	--color-card-border: var(--color-teal-border);
 
-	--color-text-muted: var(--color-blue-muted);
+	--color-text-muted: var(--color-slate-muted);
+	/* older name, still used in a few components */
+	--color-blue-muted: var(--color-slate-muted);
+
+	--shadow-card: 0 6px 20px -8px rgba(16, 60, 52, 0.18), 0 1px 3px rgba(16, 60, 52, 0.06);
+	--radius-card: 18px;
+
+	/* Ionic */
+	--ion-background-color: var(--color-bg-page);
+	--ion-color-primary: #0a9f84;
+	--ion-color-primary-rgb: 10, 159, 132;
+	--ion-color-primary-contrast: #ffffff;
+	--ion-color-primary-contrast-rgb: 255, 255, 255;
+	--ion-color-primary-shade: #087f6a;
+	--ion-color-primary-tint: #23a991;
+	--ion-tab-bar-color: #b3bec2;
+	--ion-tab-bar-color-selected: var(--color-primary);
+	--ion-tab-bar-background-focused: transparent;
+}
+
+ion-content {
+	--background: var(--color-bg-page);
+}
+
+/* ---- Page headers: small uppercase teal titles, as in the reference design ---- */
+ion-header h2 {
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	font-size: 0.95rem !important;
+	font-weight: 700 !important;
+	color: var(--color-primary) !important;
+}
+
+/* ---- Bottom tab bar ---- */
+ion-tab-bar {
+	--background: var(--color-surface);
+	--border: 0;
+	box-shadow: 0 -6px 24px -12px rgba(16, 60, 52, 0.25);
+	border-top-left-radius: 22px;
+	border-top-right-radius: 22px;
+}
+
+/* ---- Building blocks ---- */
+.app-card {
+	background: var(--color-surface);
+	border-radius: var(--radius-card);
+	box-shadow: var(--shadow-card);
+}
+
+/* A list inside a card: rows separated by a hairline */
+.app-list > * + * {
+	border-top: 1px solid #edf1f2;
+}
+
+.app-section-title {
+	font-size: 1rem;
+	font-weight: 700;
+	color: #1f2d31;
+}
+
+/* Solid primary pill button (frappe-ui Button with class="app-btn-primary") */
+.app-btn-primary {
+	background: var(--color-primary) !important;
+	color: var(--color-on-primary) !important;
+	border-radius: 9999px !important;
+	font-weight: 600;
+	box-shadow: 0 8px 18px -10px rgba(10, 159, 132, 0.9);
+}
+.app-btn-primary:hover,
+.app-btn-primary:active {
+	background: var(--color-primary-hover) !important;
+}
+
+/* Bottom sheets: rounded top corners like the reference */
+ion-modal::part(content) {
+	border-top-left-radius: 24px;
+	border-top-right-radius: 24px;
+}
+
+/* Pull-to-refresh spinner in the brand colour */
+ion-refresher ion-refresher-content {
+	--color: var(--color-primary);
+}
+ion-refresher ion-spinner {
+	color: var(--color-primary);
 }

@@ -255,13 +255,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, inject } from "vue"
+import { ref, computed, watch, inject, onUnmounted } from "vue"
 import { Badge, FeatherIcon, LoadingIndicator, toast } from "frappe-ui"
 
 import FileUploaderView from "@/components/FileUploaderView.vue"
 import { FileAttachment } from "@/composables"
 import { useTripLocation } from "@/composables/useTripLocation"
 import { getDriverTrip, driverTripAction } from "@/data/deliveryTrips"
+import { changeMatches, onDataChange } from "@/data/sync"
 import { tripStatusTheme } from "@/utils/statusColors"
 
 const __ = inject("$translate")
@@ -297,8 +298,14 @@ const uploading = ref(null)
 const { latitude, longitude, locationStatus, fetchLocation } = useTripLocation()
 
 const can = (action) => (detail.value?.actions || []).includes(action)
-// Files already on the trip when it was opened (copied from the request, or from earlier steps)
-const savedAttachments = computed(() => detail.value?.attachments || [])
+// Files already on the trip (copied from the request, or from earlier steps). Files the driver just
+// uploaded in this sheet are listed in their own section, so they are left out here.
+const pendingFileNames = computed(
+	() => new Set([...startAttachments.value, ...stopAttachments.value, ...proofAttachments.value].map((f) => f.name))
+)
+const savedAttachments = computed(() =>
+	(detail.value?.attachments || []).filter((file) => !pendingFileNames.value.has(file.name))
+)
 // Only the person who attached a file can remove it; a file just uploaded is the driver's own.
 const ownFile = (file) => file.can_delete !== false
 
@@ -362,6 +369,29 @@ watch(
 	},
 	{ immediate: true }
 )
+
+// Keep the open trip up to date when someone else changes it (e.g. the supervisor adds the
+// customer location), unless the driver is in the middle of a step.
+const stopSync = onDataChange(async (changes) => {
+	const name = trip.value?.name
+	if (!name || loading.value || busy.value || uploading.value) return
+	if (!changeMatches(changes, ["Delivery Trip"], name)) return
+	try {
+		const data = await getDriverTrip(name)
+		if (trip.value?.name !== name || busy.value) return
+		if (data.status !== detail.value?.status) {
+			// a new step: start it clean
+			setDetail(data)
+			showStopForm.value = false
+			trip.value.status = data.status
+		} else {
+			detail.value = data
+		}
+	} catch {
+		// a background refresh: keep what is on screen
+	}
+})
+onUnmounted(stopSync)
 
 function showError(err, fallback) {
 	toast({
