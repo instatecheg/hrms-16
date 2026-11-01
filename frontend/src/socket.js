@@ -4,15 +4,17 @@ import { getCachedListResource } from "frappe-ui/src/resources/listResource"
 import { getCachedResource } from "frappe-ui/src/resources/resources"
 
 export function initSocket() {
-	let host = window.location.hostname
 	let siteName = window.site_name
 	let socketio_port = window.frappe?.boot?.socketio_port || 9000
-	let port = window.location.port ? `:${socketio_port}` : ""
-	let protocol = port ? "http" : "https"
-	let url = `${protocol}://${host}${port}/${siteName}`
+	// Deployed: same address as the page, so nginx proxies /socket.io and tells the server which
+	// site this is (going straight to the socketio port is refused with "Invalid namespace").
+	let origin = import.meta.env.DEV
+		? `http://${window.location.hostname}:${socketio_port}`
+		: window.location.origin
+	let url = `${origin}/${siteName}`
+	// keeps retrying: phones lose the connection all the time
 	let socket = io(url, {
 		withCredentials: true,
-		reconnectionAttempts: 5,
 	})
 
 	socket.on("hrms:refetch_resource", (data) => {

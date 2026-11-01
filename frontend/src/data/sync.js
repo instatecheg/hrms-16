@@ -4,6 +4,8 @@
 // - the server saves a Delivery Trip / Transportation Request / PWA Notification
 //   (socket "list_update", sent by Frappe on every save),
 // - the app comes back to the foreground or the phone gets back online,
+// - a notification is created for this user (socket "hrms:data_changed", sent to the user's own
+//   room, so it does not depend on the user's permissions on the doctype),
 // - every POLL_INTERVAL while the app is visible: a fallback for when the socket is not connected.
 //
 // Listeners get the changed doctype and name, or doctype "*" for "anything may have changed".
@@ -11,7 +13,7 @@
 import { session } from "@/data/session"
 
 export const SYNCED_DOCTYPES = ["Delivery Trip", "Transportation Request", "PWA Notification"]
-const POLL_INTERVAL = 30 * 1000
+const POLL_INTERVAL = 15 * 1000
 // several saves in a row (e.g. a trip and its request) cause one reload
 const DEBOUNCE = 400
 
@@ -70,8 +72,12 @@ export function initSync(socket) {
 		if (SYNCED_DOCTYPES.includes(data?.doctype)) notifyDataChange(data.doctype, data.name)
 	})
 
+	socket.on("hrms:data_changed", (data) => notifyDataChange(data?.doctype, data?.name))
+
 	document.addEventListener("visibilitychange", () => {
-		if (document.visibilityState === "visible") notifyDataChange()
+		if (document.visibilityState !== "visible") return
+		if (!socket.connected) socket.connect()
+		notifyDataChange()
 	})
 	window.addEventListener("online", () => notifyDataChange())
 

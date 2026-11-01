@@ -7,13 +7,14 @@
 				<FeatherIcon name="truck" class="h-5 w-5" />
 			</div>
 			<div class="flex flex-col items-start gap-1 min-w-0">
+				<div class="text-xs font-medium text-[var(--color-text-muted)] truncate max-w-full">
+					{{ requestNumber }}
+				</div>
 				<div class="text-base font-semibold text-gray-900 truncate max-w-full">
 					{{ customerName }}
 				</div>
-				<div class="text-xs font-normal text-[var(--color-text-muted)]">
-					<span v-if="fromTo">{{ fromTo }}</span>
-					<span v-if="fromTo && departure"> &middot; </span>
-					<span v-if="departure">{{ departure }}</span>
+				<div v-if="fromTo" class="text-xs font-normal text-[var(--color-text-muted)] truncate max-w-full">
+					{{ fromTo }}
 				</div>
 			</div>
 		</template>
@@ -36,7 +37,6 @@ import { FeatherIcon, Badge } from "frappe-ui"
 
 import ListItem from "@/components/ListItem.vue"
 import { tripStatusTheme } from "@/utils/statusColors"
-import { formatTimestamp } from "@/utils/formatters"
 
 const __ = inject("$translate")
 
@@ -46,14 +46,13 @@ const props = defineProps({
 	},
 })
 
+// A trip created without a request shows its own number.
+const requestNumber = computed(() => props.doc.lh_transportation_request || props.doc.name)
 // The customer's name (from the server); the Customer ID only if the name is unknown.
 const customerName = computed(() => props.doc.customer_name || props.doc.lh_customer || __("No customer"))
 const fromTo = computed(() =>
 	[props.doc.from || props.doc.lh_source_city, props.doc.to || props.doc.lh_destination_city]
 		.filter(Boolean)
 		.join(" → ")
-)
-const departure = computed(() =>
-	props.doc.departure_time ? formatTimestamp(props.doc.departure_time) : ""
 )
 </script>

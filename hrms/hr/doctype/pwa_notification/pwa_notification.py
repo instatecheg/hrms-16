@@ -12,6 +12,13 @@ class PWANotification(Document):
 
 	def after_insert(self):
 		self.send_push_notification()
+		# refresh the open app of the recipient (see frontend/src/data/sync.js)
+		frappe.publish_realtime(
+			"hrms:data_changed",
+			{"doctype": self.reference_document_type, "name": self.reference_document_name},
+			user=self.to_user,
+			after_commit=True,
+		)
 
 	def send_push_notification(self):
 		try:

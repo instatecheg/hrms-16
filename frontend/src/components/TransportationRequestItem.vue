@@ -7,13 +7,14 @@
 				<FeatherIcon name="clipboard" class="h-5 w-5" />
 			</div>
 			<div class="flex flex-col items-start gap-1 min-w-0">
+				<div class="text-xs font-medium text-[var(--color-text-muted)] truncate max-w-full">
+					{{ props.doc.name }}
+				</div>
 				<div class="text-base font-semibold text-gray-900 truncate max-w-full">
 					{{ props.doc.customer_name || props.doc.customer }}
 				</div>
-				<div class="text-xs font-normal text-[var(--color-text-muted)]">
-					<span v-if="fromTo">{{ fromTo }}</span>
-					<span v-if="fromTo"> &middot; </span>
-					<span>{{ formatTimestamp(props.doc.departure_time) }}</span>
+				<div v-if="fromTo" class="text-xs font-normal text-[var(--color-text-muted)] truncate max-w-full">
+					{{ fromTo }}
 				</div>
 			</div>
 		</template>
@@ -37,7 +38,6 @@ import { FeatherIcon, Badge } from "frappe-ui"
 
 import ListItem from "@/components/ListItem.vue"
 import { requestStateTheme } from "@/utils/statusColors"
-import { formatTimestamp } from "@/utils/formatters"
 
 const __ = inject("$translate")
 
